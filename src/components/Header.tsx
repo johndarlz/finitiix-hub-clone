@@ -22,7 +22,7 @@ const Header = () => {
           </div>
           <div>
             <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Finitiix
+              Finitix
             </h1>
             <div className="text-xs text-muted-foreground -mt-1">Hub</div>
           </div>
@@ -33,7 +33,7 @@ const Header = () => {
           {navItems.map((item) => (
             <a
               key={item}
-              href="#"
+              href={item === "Home" ? "/" : `/${item.toLowerCase().replace(" & ", "-")}`}
               className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
             >
               {item}

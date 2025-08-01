@@ -37,7 +37,7 @@ const HowItWorksSection = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
             How{" "}
             <span className="bg-gradient-primary bg-clip-text text-transparent">
-              Finitiix Hub
+              Finitix Hub
             </span>{" "}
             Works
           </h2>

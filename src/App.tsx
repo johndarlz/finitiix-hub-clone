@@ -4,6 +4,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import WorkZone from "./pages/WorkZone";
+import EduTask from "./pages/EduTask";
+import ProjectHub from "./pages/ProjectHub";
+import BubbleGigs from "./pages/BubbleGigs";
+import SkillExchange from "./pages/SkillExchange";
+import AskTeach from "./pages/AskTeach";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -16,6 +22,12 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/workzone" element={<WorkZone />} />
+          <Route path="/edutask" element={<EduTask />} />
+          <Route path="/projecthub" element={<ProjectHub />} />
+          <Route path="/bubblegigs" element={<BubbleGigs />} />
+          <Route path="/skillexchange" element={<SkillExchange />} />
+          <Route path="/ask-teach" element={<AskTeach />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

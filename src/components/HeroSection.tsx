@@ -61,7 +61,7 @@ const HeroSection = () => {
           <div className="relative rounded-2xl overflow-hidden shadow-strong">
             <img 
               src={heroImage} 
-              alt="Finitiix Hub - Students and professionals working together"
+              alt="Finitix Hub - Students and professionals working together"
               className="w-full h-auto object-cover"
             />
             
