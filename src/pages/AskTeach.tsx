@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircleQuestion, GraduationCap, DollarSign, Clock, Star, Users, TrendingUp, BookOpen } from "lucide-react";
+import PageLayout from "@/components/PageLayout";
 
 const AskTeach = () => {
   const categories = [
@@ -154,7 +155,8 @@ const AskTeach = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageLayout>
+      <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary/10 via-background to-success/10 py-20">
         <div className="container mx-auto px-4">
@@ -410,7 +412,8 @@ const AskTeach = () => {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </PageLayout>
   );
 };
 

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Video, Play, Clock, Star, Eye, MessageCircle, TrendingUp, Users, DollarSign } from "lucide-react";
+import PageLayout from "@/components/PageLayout";
 
 const BubbleGigs = () => {
   const gigCategories = [
@@ -127,7 +128,8 @@ const BubbleGigs = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageLayout>
+      <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary/10 via-background to-secondary/10 py-20">
         <div className="container mx-auto px-4">
@@ -325,7 +327,8 @@ const BubbleGigs = () => {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </PageLayout>
   );
 };
 

@@ -63,14 +63,12 @@ const Footer = () => {
           <div className="lg:col-span-2 space-y-6">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <Star className="w-5 h-5 text-white" />
-              </div>
+              <img src="/lovable-uploads/93ab087f-fb9d-4163-8815-d28c78b48250.png" alt="Finitix Logo" className="w-8 h-8" />
               <div>
                 <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                   Finitix
                 </h1>
-                <div className="text-xs text-muted-foreground -mt-1">Hub</div>
+                <div className="text-xs text-muted-foreground -mt-1">begin beyond</div>
               </div>
             </div>
 
@@ -153,6 +151,8 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-4">
             <span>© 2024 Finitix Hub. All rights reserved.</span>
+            <span>•</span>
+            <span>from Finitix</span>
             <div className="flex items-center gap-1 text-xs bg-muted px-2 py-1 rounded-full">
               <Star className="w-3 h-3 fill-primary text-primary" />
               <span>#1 Platform for Skills & Earning</span>
