@@ -35,7 +35,7 @@ export const JobApplicationModal = ({ jobId, jobTitle, isOpen, onClose }: JobApp
     const applicationData = {
       proposal_message: formData.proposal_message,
       bid_amount: parseInt(formData.bid_amount),
-      attachments: [], // TODO: Handle file uploads
+      attachment_urls: [], // TODO: Handle file uploads
     };
 
     const success = await applyForJob(jobId, applicationData);
