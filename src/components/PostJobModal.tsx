@@ -11,17 +11,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Upload, X } from "lucide-react";
 
 const jobCategories = [
-  { value: 'web_development', label: 'Web Development' },
-  { value: 'mobile_development', label: 'Mobile Development' },
-  { value: 'ui_ux_design', label: 'UI/UX Design' },
-  { value: 'graphic_design', label: 'Graphic Design' },
-  { value: 'content_writing', label: 'Content Writing' },
+  { value: 'design_creative', label: 'Design & Creative' },
+  { value: 'programming_tech', label: 'Programming & Tech' },
+  { value: 'writing_translation', label: 'Writing & Translation' },
   { value: 'digital_marketing', label: 'Digital Marketing' },
+  { value: 'video_animation', label: 'Video & Animation' },
+  { value: 'music_audio', label: 'Music & Audio' },
+  { value: 'business', label: 'Business' },
   { value: 'data_entry', label: 'Data Entry' },
-  { value: 'virtual_assistant', label: 'Virtual Assistant' },
-  { value: 'video_editing', label: 'Video Editing' },
-  { value: 'programming', label: 'Programming' },
-  { value: 'consulting', label: 'Consulting' },
+  { value: 'customer_service', label: 'Customer Service' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -50,11 +48,15 @@ export const PostJobModal = ({ children }: { children: React.ReactNode }) => {
     }
 
     const jobData = {
-      ...formData,
+      title: formData.title,
+      description: formData.description,
+      important_instructions: formData.important_instructions,
       budget_min: parseInt(formData.budget_min),
       budget_max: parseInt(formData.budget_max),
-      delivery_time: parseInt(formData.delivery_time),
-      attachments: [], // TODO: Handle file uploads
+      budget_negotiable: formData.budget_negotiable,
+      delivery_time: formData.delivery_time,
+      category: formData.category as 'design_creative' | 'programming_tech' | 'writing_translation' | 'digital_marketing' | 'video_animation' | 'music_audio' | 'business' | 'data_entry' | 'customer_service' | 'other',
+      attachment_urls: [], // TODO: Handle file uploads
     };
 
     const result = await createJob(jobData);

@@ -12,9 +12,9 @@ export interface Job {
   budget_min: number;
   budget_max: number;
   budget_negotiable: boolean;
-  delivery_time: number;
-  category: string;
-  status: string;
+  delivery_time: string;
+  category: 'design_creative' | 'programming_tech' | 'writing_translation' | 'digital_marketing' | 'video_animation' | 'music_audio' | 'business' | 'data_entry' | 'customer_service' | 'other';
+  status: 'active' | 'in_progress' | 'completed' | 'cancelled' | 'draft';
   attachment_urls?: string[];
   created_at: string;
   updated_at: string;
@@ -30,8 +30,8 @@ export interface JobApplication {
   applicant_id: string;
   proposal_message: string;
   bid_amount: number;
-  attachments: any[];
-  status: string;
+  attachment_urls?: string[];
+  status: 'pending' | 'accepted' | 'rejected' | 'withdrawn';
   created_at: string;
   updated_at: string;
   profiles?: {
@@ -71,12 +71,12 @@ export const useJobs = () => {
         .from('jobs')
         .select(`
           *,
-          profiles:user_id (name, username)
+          profiles!jobs_user_id_fkey (name, username)
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setJobs(data || []);
+      setJobs((data || []) as unknown as Job[]);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -88,7 +88,7 @@ export const useJobs = () => {
     }
   };
 
-  const createJob = async (jobData: Omit<Job, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'status'>) => {
+  const createJob = async (jobData: Omit<Job, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'status' | 'profiles'>) => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -129,7 +129,7 @@ export const useJobs = () => {
   const applyForJob = async (jobId: string, applicationData: {
     proposal_message: string;
     bid_amount: number;
-    attachments?: any[];
+    attachment_urls?: string[];
   }) => {
     if (!user) {
       toast({

@@ -97,7 +97,7 @@ export default function Workspace() {
     }
   };
 
-  const updateApplicationStatus = async (applicationId: string, status: string) => {
+  const updateApplicationStatus = async (applicationId: string, status: 'pending' | 'accepted' | 'rejected' | 'withdrawn') => {
     try {
       const { error } = await supabase
         .from('job_applications')

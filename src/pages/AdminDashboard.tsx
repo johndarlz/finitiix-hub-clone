@@ -79,7 +79,7 @@ export default function AdminDashboard() {
       const { count: activeJobs } = await supabase
         .from('jobs')
         .select('*', { count: 'exact', head: true })
-        .eq('status', 'open');
+        .eq('status', 'active');
 
       // Fetch total applications
       const { count: totalApplications } = await supabase
