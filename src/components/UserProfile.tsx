@@ -99,13 +99,17 @@ const UserProfile = () => {
           </div>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer">
-          <UserCircle className="mr-2 h-4 w-4" />
-          <span>Profile</span>
+        <DropdownMenuItem asChild>
+          <a href="/workspace" className="cursor-pointer flex">
+            <UserCircle className="mr-2 h-4 w-4" />
+            <span>Workspace</span>
+          </a>
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer">
-          <Settings className="mr-2 h-4 w-4" />
-          <span>Settings</span>
+        <DropdownMenuItem asChild>
+          <a href="/settings" className="cursor-pointer flex">
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Settings</span>
+          </a>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

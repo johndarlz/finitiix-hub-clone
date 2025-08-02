@@ -15,6 +15,10 @@ import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Settings from "./pages/Settings";
+import Workspace from "./pages/Workspace";
+import AdminAuth from "./pages/AdminAuth";
+import AdminDashboard from "./pages/AdminDashboard";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
@@ -39,6 +43,10 @@ const App = () => (
             <Route path="/signin" element={<SignIn />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/workspace" element={<Workspace />} />
+            <Route path="/admin-auth" element={<AdminAuth />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/about" element={<About />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
