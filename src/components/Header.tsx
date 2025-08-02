@@ -33,13 +33,13 @@ const Header = () => {
         {/* Navigation */}
         <nav className="hidden lg:flex items-center gap-6">
           {navItems.map((item) => (
-            <a
+            <Link
               key={item}
-              href={item === "Home" ? "/" : `/${item.toLowerCase().replace(" & ", "-")}`}
+              to={item === "Home" ? "/" : `/${item.toLowerCase().replace(" & ", "-")}`}
               className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
             >
               {item}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -49,9 +49,11 @@ const Header = () => {
             <Star className="w-3 h-3 fill-primary text-primary" />
             <span>#1 Platform for Skills & Earning</span>
           </div>
-          <Button variant="ghost" size="sm">
-            About
-          </Button>
+          <Link to="/about">
+            <Button variant="ghost" size="sm">
+              About
+            </Button>
+          </Link>
           {user ? (
             <UserProfile />
           ) : (
