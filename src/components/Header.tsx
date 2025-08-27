@@ -2,19 +2,29 @@ import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import UserProfile from "./UserProfile";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Header = () => {
   const { user } = useAuth();
+  const location = useLocation();
+  
   const navItems = [
-    "Home",
-    "WorkZone", 
-    "EduTask",
-    "ProjectHub",
-    "BubbleGigs", 
-    "SkillExchange",
-    "Ask & Teach"
+    { name: "Home", path: "/" },
+    { name: "WorkZone", path: "/workzone" },
+    { name: "EduTask", path: "/edutask" },
+    { name: "ProjectHub", path: "/projecthub" },
+    { name: "BubbleGigs", path: "/bubblegigs" },
+    { name: "SkillExchange", path: "/skillexchange" },
+    { name: "Ask & Teach", path: "/ask-teach" }
   ];
+  
+  const isActive = (path: string) => {
+    // Special case for home page
+    if (path === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(path);
+  };
 
   return (
     <header className="w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 border-b">
@@ -24,7 +34,7 @@ const Header = () => {
           <img src="/lovable-uploads/93ab087f-fb9d-4163-8815-d28c78b48250.png" alt="Finitix Logo" className="w-8 h-8" />
           <div>
             <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Finitix
+              Finitix<span className="text-primary">Hub</span>
             </h1>
             <div className="text-xs text-muted-foreground -mt-1">begin beyond</div>
           </div>
@@ -32,15 +42,25 @@ const Header = () => {
 
         {/* Navigation */}
         <nav className="hidden lg:flex items-center gap-6">
-          {navItems.map((item) => (
-            <Link
-              key={item}
-              to={item === "Home" ? "/" : `/${item.toLowerCase().replace(" & ", "-")}`}
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-            >
-              {item}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const active = isActive(item.path);
+            return (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`text-sm font-medium transition-colors ${
+                  active 
+                    ? 'text-primary font-semibold' 
+                    : 'text-muted-foreground hover:text-primary'
+                }`}
+              >
+                {item.name}
+                {active && (
+                  <span className="block h-0.5 w-full bg-primary mt-1 rounded-full" />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* CTA Buttons */}
