@@ -66,7 +66,7 @@ const Footer = () => {
               <img src="/lovable-uploads/93ab087f-fb9d-4163-8815-d28c78b48250.png" alt="Finitix Logo" className="w-8 h-8" />
               <div>
                 <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                  Finitix
+                  FinitixHub
                 </h1>
                 <div className="text-xs text-muted-foreground -mt-1">begin beyond</div>
               </div>
@@ -80,15 +80,15 @@ const Footer = () => {
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
-                <span>support@finitixhub.com</span>
+                <span>finitixhub@gmail.com</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4" />
-                <span>+91 9876543210</span>
+                <span>+91 9515271439</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
-                <span>Bangalore, India</span>
+                <span>India</span>
               </div>
             </div>
 
