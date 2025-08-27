@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 import { 
   Briefcase, 
   GraduationCap, 
@@ -120,12 +121,19 @@ const ModulesSection = () => {
                   ))}
                 </div>
 
-                <Button 
-                  variant="outline" 
-                  className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300"
+                <Link 
+                  to={module.title === 'Ask & Teach' 
+                    ? '/ask-teach' 
+                    : `/${module.title.toLowerCase().replace(/\s+/g, '-')}`} 
+                  className="w-full"
                 >
-                  Explore {module.title}
-                </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300"
+                  >
+                    Explore {module.title}
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           ))}
