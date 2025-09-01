@@ -18,6 +18,12 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
+import Workspace from "./pages/Workspace";
+import AdminAuth from "./pages/AdminAuth";
+import AdminDashboard from "./pages/AdminDashboard";
+import PostJobForm from "./components/forms/PostJobForm";
+import AddCourseForm from "./components/forms/AddCourseForm";
+import UploadProjectForm from "./components/forms/UploadProjectForm";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +48,12 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/about" element={<About />} />
+            <Route path="/workspace" element={<Workspace />} />
+            <Route path="/admin" element={<AdminAuth />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/workzone/post" element={<PostJobForm />} />
+            <Route path="/edutask/add-course" element={<AddCourseForm />} />
+            <Route path="/projecthub/upload" element={<UploadProjectForm />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
