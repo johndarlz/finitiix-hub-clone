@@ -3,20 +3,23 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import WorkZone from "./pages/WorkZone";
+import PostJob from "./pages/PostJob";
+import ApplyJob from "./pages/ApplyJob";
+import Profile from "./pages/Profile";
 import EduTask from "./pages/EduTask";
 import ProjectHub from "./pages/ProjectHub";
 import BubbleGigs from "./pages/BubbleGigs";
 import SkillExchange from "./pages/SkillExchange";
 import AskTeach from "./pages/AskTeach";
-import SignUp from "./pages/SignUp";
+import About from "./pages/About";
 import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +35,9 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/workzone" element={<WorkZone />} />
+            <Route path="/post-job" element={<PostJob />} />
+            <Route path="/apply-job/:jobId" element={<ApplyJob />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/edutask" element={<EduTask />} />
             <Route path="/projecthub" element={<ProjectHub />} />
             <Route path="/bubblegigs" element={<BubbleGigs />} />

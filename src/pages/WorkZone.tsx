@@ -1,63 +1,157 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, Search, Filter, Clock, Star, DollarSign, CheckCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Briefcase, Search, Filter, Clock, Star, DollarSign, CheckCircle, MapPin } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import PageLayout from "@/components/PageLayout";
 
 const WorkZone = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [jobTypeFilter, setJobTypeFilter] = useState("");
+  const [quickStats, setQuickStats] = useState({
+    totalJobs: 0,
+    priceRange: "₹50-5000",
+    avgResponse: "24 hrs",
+    completionRate: "98%"
+  });
+
   const jobCategories = [
     "Design & Creative", "Programming & Tech", "Writing & Translation", 
-    "Digital Marketing", "Video & Animation", "Music & Audio", "Business"
+    "Digital Marketing", "Video & Animation", "Music & Audio", "Business",
+    "Education & Training"
   ];
 
-  const featuredJobs = [
-    {
-      title: "Logo Design for Startup",
-      description: "Create a modern, minimalist logo for a tech startup. Requirements include vector files and multiple format deliverables.",
-      price: "₹2,500",
-      duration: "3 days",
-      skills: ["Logo Design", "Adobe Illustrator", "Branding"],
-      rating: 4.9,
-      proposals: 12,
-      verified: true
-    },
-    {
-      title: "WordPress Website Bug Fix",
-      description: "Fix responsive issues and optimize loading speed for WordPress e-commerce site. Quick turnaround needed.",
-      price: "₹1,800",
-      duration: "2 days", 
-      skills: ["WordPress", "PHP", "CSS"],
-      rating: 4.8,
-      proposals: 8,
-      verified: true
-    },
-    {
-      title: "Social Media Content Creation",
-      description: "Create 10 Instagram posts with engaging captions for a fitness brand. Include hashtag research.",
-      price: "₹1,200",
-      duration: "5 days",
-      skills: ["Content Writing", "Social Media", "Canva"],
-      rating: 4.7,
-      proposals: 15,
-      verified: false
-    },
-    {
-      title: "Data Entry & Excel Analysis",
-      description: "Process customer data and create analytical reports with charts and insights. Accuracy is crucial.",
-      price: "₹800",
-      duration: "1 day",
-      skills: ["Excel", "Data Analysis", "Data Entry"],
-      rating: 4.6,
-      proposals: 25,
-      verified: true
+  useEffect(() => {
+    fetchJobs();
+    fetchQuickStats();
+    
+    // Set up real-time subscription
+    const subscription = supabase
+      .channel('jobs_changes')
+      .on('postgres_changes', 
+        { event: 'INSERT', schema: 'public', table: 'jobs' },
+        (payload) => {
+          console.log('New job added:', payload);
+          fetchJobs(); // Refresh jobs list
+        }
+      )
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'jobs' },
+        (payload) => {
+          console.log('Job updated:', payload);
+          fetchJobs(); // Refresh jobs list
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const fetchJobs = async () => {
+    try {
+      let query = supabase
+        .from('jobs')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      if (searchQuery) {
+        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,skills_required.cs.{${searchQuery}}`);
+      }
+
+      if (selectedCategory) {
+        query = query.eq('category', selectedCategory);
+      }
+
+      if (jobTypeFilter) {
+        query = query.eq('job_type', jobTypeFilter as 'online' | 'offline');
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      setJobs(data || []);
+    } catch (error: any) {
+      console.error('Error fetching jobs:', error);
+      toast({
+        title: "Error loading jobs",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const quickStats = [
-    { icon: <Briefcase className="w-5 h-5" />, value: "2,500+", label: "Active Jobs" },
-    { icon: <DollarSign className="w-5 h-5" />, value: "₹50-5000", label: "Price Range" },
-    { icon: <Clock className="w-5 h-5" />, value: "24 hrs", label: "Avg Response" },
-    { icon: <CheckCircle className="w-5 h-5" />, value: "98%", label: "Completion Rate" }
+  const fetchQuickStats = async () => {
+    try {
+      const { count } = await supabase
+        .from('jobs')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'active');
+
+      setQuickStats(prev => ({
+        ...prev,
+        totalJobs: count || 0
+      }));
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
+  const handleSearch = () => {
+    fetchJobs();
+  };
+
+  const handlePostJob = () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to post a job.",
+        variant: "destructive"
+      });
+      navigate('/signin');
+      return;
+    }
+    navigate('/post-job');
+  };
+
+  const handleApplyJob = (jobId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to apply for jobs.",
+        variant: "destructive"
+      });
+      navigate('/signin');
+      return;
+    }
+    navigate(`/apply-job/${jobId}`);
+  };
+
+  const formatTimeline = (timeline: string) => {
+    return timeline.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  const quickStatsData = [
+    { icon: <Briefcase className="w-5 h-5" />, value: `${quickStats.totalJobs}+`, label: "Active Jobs" },
+    { icon: <DollarSign className="w-5 h-5" />, value: quickStats.priceRange, label: "Price Range" },
+    { icon: <Clock className="w-5 h-5" />, value: quickStats.avgResponse, label: "Avg Response" },
+    { icon: <CheckCircle className="w-5 h-5" />, value: quickStats.completionRate, label: "Completion Rate" }
   ];
 
   return (
@@ -82,14 +176,14 @@ const WorkZone = () => {
                 <Briefcase className="w-5 h-5" />
                 Find Jobs
               </Button>
-              <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+              <Button variant="outline" size="lg" className="text-lg px-8 py-6" onClick={handlePostJob}>
                 Post a Job
               </Button>
             </div>
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
-              {quickStats.map((stat, index) => (
+              {quickStatsData.map((stat, index) => (
                 <div key={index} className="text-center p-4 bg-card rounded-xl shadow-soft">
                   <div className="flex items-center justify-center w-10 h-10 bg-gradient-primary rounded-lg mx-auto mb-2">
                     <div className="text-white">
@@ -129,92 +223,141 @@ const WorkZone = () => {
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-              <input
+              <Input
                 type="text"
                 placeholder="Search jobs by title, skills, or description..."
-                className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
             </div>
-            <Button variant="outline" className="px-6">
-              <Filter className="w-4 h-4" />
-              Filters
-            </Button>
-            <Button variant="hero" className="px-6">
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Categories</SelectItem>
+                {jobCategories.map((category) => (
+                  <SelectItem key={category} value={category}>{category}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={jobTypeFilter} onValueChange={setJobTypeFilter}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Job Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="online">Online</SelectItem>
+                <SelectItem value="offline">Offline</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="hero" className="px-6" onClick={handleSearch}>
               Search Jobs
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Featured Jobs */}
+      {/* Jobs Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Featured Jobs</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Find Jobs</h2>
           
-          <div className="grid md:grid-cols-2 gap-8">
-            {featuredJobs.map((job, index) => (
-              <Card key={index} className="hover:shadow-medium transition-all duration-300 transform hover:-translate-y-1">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <CardTitle className="text-lg">{job.title}</CardTitle>
-                        {job.verified && (
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p>Loading jobs...</p>
+            </div>
+          ) : jobs.length > 0 ? (
+            <div className="grid md:grid-cols-2 gap-8">
+              {jobs.map((job) => (
+                <Card key={job.id} className="hover:shadow-medium transition-all duration-300 transform hover:-translate-y-1">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CardTitle className="text-lg">{job.title}</CardTitle>
                           <Badge variant="secondary" className="text-xs">
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Verified
+                            {job.job_type}
                           </Badge>
-                        )}
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            <span>{formatTimeline(job.timeline)}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Badge variant="outline" className="text-xs">{job.category}</Badge>
+                          </div>
+                          {job.location_preference !== 'remote' && (
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-4 h-4" />
+                              <span>{job.location_preference}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 fill-primary text-primary" />
-                          <span>{job.rating}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          <span>{job.duration}</span>
-                        </div>
-                        <div>{job.proposals} proposals</div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-success">₹{job.budget}</div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-success">{job.price}</div>
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-4">
+                    <CardDescription className="text-foreground leading-relaxed line-clamp-3">
+                      {job.description}
+                    </CardDescription>
+                    
+                    <div className="flex flex-wrap gap-2">
+                      {job.skills_required?.slice(0, 5).map((skill: string, skillIndex: number) => (
+                        <Badge key={skillIndex} variant="outline" className="text-xs">
+                          {skill}
+                        </Badge>
+                      ))}
+                      {job.skills_required?.length > 5 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{job.skills_required.length - 5} more
+                        </Badge>
+                      )}
                     </div>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="space-y-4">
-                  <CardDescription className="text-foreground leading-relaxed">
-                    {job.description}
-                  </CardDescription>
-                  
-                  <div className="flex flex-wrap gap-2">
-                    {job.skills.map((skill, skillIndex) => (
-                      <Badge key={skillIndex} variant="outline" className="text-xs">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                  
-                  <div className="flex gap-3">
-                    <Button variant="hero" className="flex-1">
-                      Apply Now
-                    </Button>
-                    <Button variant="outline">
-                      Save Job
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
-              Load More Jobs
-            </Button>
-          </div>
+                    
+                    <div className="flex gap-3">
+                      <Button 
+                        variant="hero" 
+                        className="flex-1" 
+                        onClick={() => handleApplyJob(job.id)}
+                      >
+                        Apply Now
+                      </Button>
+                      <Button variant="outline">
+                        View Details
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Briefcase className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-xl font-semibold mb-2">No jobs found</h3>
+              <p className="text-muted-foreground mb-4">
+                {searchQuery || selectedCategory || jobTypeFilter 
+                  ? "Try adjusting your search filters" 
+                  : "Be the first to post a job!"}
+              </p>
+              <Button variant="outline" onClick={() => {
+                setSearchQuery("");
+                setSelectedCategory("");
+                setJobTypeFilter("");
+                fetchJobs();
+              }}>
+                Clear Filters
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 
