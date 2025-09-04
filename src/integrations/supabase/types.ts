@@ -7,13 +7,37 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
   }
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string
+          id: string
+          permissions: string[] | null
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permissions?: string[] | null
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permissions?: string[] | null
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -58,7 +82,19 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      application_status: "pending" | "accepted" | "rejected" | "withdrawn"
+      job_category:
+        | "design_creative"
+        | "programming_tech"
+        | "writing_translation"
+        | "digital_marketing"
+        | "video_animation"
+        | "music_audio"
+        | "business"
+        | "data_entry"
+        | "customer_service"
+        | "other"
+      job_status: "active" | "in_progress" | "completed" | "cancelled" | "draft"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -185,6 +221,21 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      application_status: ["pending", "accepted", "rejected", "withdrawn"],
+      job_category: [
+        "design_creative",
+        "programming_tech",
+        "writing_translation",
+        "digital_marketing",
+        "video_animation",
+        "music_audio",
+        "business",
+        "data_entry",
+        "customer_service",
+        "other",
+      ],
+      job_status: ["active", "in_progress", "completed", "cancelled", "draft"],
+    },
   },
 } as const
