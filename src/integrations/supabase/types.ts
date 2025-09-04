@@ -38,6 +38,206 @@ export type Database = {
         }
         Relationships: []
       }
+      job_applications: {
+        Row: {
+          additional_notes: string | null
+          applicant_id: string
+          availability: Database["public"]["Enums"]["availability_type"]
+          created_at: string | null
+          email: string
+          expected_budget: number
+          experience_level: Database["public"]["Enums"]["experience_level"]
+          full_name: string
+          id: string
+          job_id: string
+          phone_number: string | null
+          portfolio_links: string[] | null
+          reference_files: string[] | null
+          relevant_skills: string[] | null
+          resume_url: string | null
+          status: Database["public"]["Enums"]["application_status"] | null
+          updated_at: string | null
+          why_hire_me: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          applicant_id: string
+          availability?: Database["public"]["Enums"]["availability_type"]
+          created_at?: string | null
+          email: string
+          expected_budget: number
+          experience_level?: Database["public"]["Enums"]["experience_level"]
+          full_name: string
+          id?: string
+          job_id: string
+          phone_number?: string | null
+          portfolio_links?: string[] | null
+          reference_files?: string[] | null
+          relevant_skills?: string[] | null
+          resume_url?: string | null
+          status?: Database["public"]["Enums"]["application_status"] | null
+          updated_at?: string | null
+          why_hire_me: string
+        }
+        Update: {
+          additional_notes?: string | null
+          applicant_id?: string
+          availability?: Database["public"]["Enums"]["availability_type"]
+          created_at?: string | null
+          email?: string
+          expected_budget?: number
+          experience_level?: Database["public"]["Enums"]["experience_level"]
+          full_name?: string
+          id?: string
+          job_id?: string
+          phone_number?: string | null
+          portfolio_links?: string[] | null
+          reference_files?: string[] | null
+          relevant_skills?: string[] | null
+          resume_url?: string | null
+          status?: Database["public"]["Enums"]["application_status"] | null
+          updated_at?: string | null
+          why_hire_me?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      jobs: {
+        Row: {
+          additional_notes: string | null
+          budget: number
+          category: string
+          created_at: string | null
+          deliverables: string
+          description: string
+          experience_level: Database["public"]["Enums"]["experience_level"]
+          how_to_apply: string
+          id: string
+          job_type: Database["public"]["Enums"]["job_type"]
+          location_preference: string | null
+          ownership_rights: boolean | null
+          reference_files: string[] | null
+          reference_links: string[] | null
+          revisions: string | null
+          skills_required: string[] | null
+          status: Database["public"]["Enums"]["job_status"] | null
+          timeline: Database["public"]["Enums"]["timeline_type"]
+          timeline_other: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          budget: number
+          category: string
+          created_at?: string | null
+          deliverables: string
+          description: string
+          experience_level?: Database["public"]["Enums"]["experience_level"]
+          how_to_apply: string
+          id?: string
+          job_type?: Database["public"]["Enums"]["job_type"]
+          location_preference?: string | null
+          ownership_rights?: boolean | null
+          reference_files?: string[] | null
+          reference_links?: string[] | null
+          revisions?: string | null
+          skills_required?: string[] | null
+          status?: Database["public"]["Enums"]["job_status"] | null
+          timeline?: Database["public"]["Enums"]["timeline_type"]
+          timeline_other?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          additional_notes?: string | null
+          budget?: number
+          category?: string
+          created_at?: string | null
+          deliverables?: string
+          description?: string
+          experience_level?: Database["public"]["Enums"]["experience_level"]
+          how_to_apply?: string
+          id?: string
+          job_type?: Database["public"]["Enums"]["job_type"]
+          location_preference?: string | null
+          ownership_rights?: boolean | null
+          reference_files?: string[] | null
+          reference_links?: string[] | null
+          revisions?: string | null
+          skills_required?: string[] | null
+          status?: Database["public"]["Enums"]["job_status"] | null
+          timeline?: Database["public"]["Enums"]["timeline_type"]
+          timeline_other?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          read: boolean | null
+          related_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          read?: boolean | null
+          related_id?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          read?: boolean | null
+          related_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -83,6 +283,8 @@ export type Database = {
     }
     Enums: {
       application_status: "pending" | "accepted" | "rejected" | "withdrawn"
+      availability_type: "part-time" | "full-time" | "freelance" | "flexible"
+      experience_level: "fresher" | "1-2-years" | "3-5-years" | "5-plus-years"
       job_category:
         | "design_creative"
         | "programming_tech"
@@ -95,6 +297,8 @@ export type Database = {
         | "customer_service"
         | "other"
       job_status: "active" | "in_progress" | "completed" | "cancelled" | "draft"
+      job_type: "online" | "offline"
+      timeline_type: "1-3-days" | "1-week" | "2-weeks" | "flexible" | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -223,6 +427,8 @@ export const Constants = {
   public: {
     Enums: {
       application_status: ["pending", "accepted", "rejected", "withdrawn"],
+      availability_type: ["part-time", "full-time", "freelance", "flexible"],
+      experience_level: ["fresher", "1-2-years", "3-5-years", "5-plus-years"],
       job_category: [
         "design_creative",
         "programming_tech",
@@ -236,6 +442,8 @@ export const Constants = {
         "other",
       ],
       job_status: ["active", "in_progress", "completed", "cancelled", "draft"],
+      job_type: ["online", "offline"],
+      timeline_type: ["1-3-days", "1-week", "2-weeks", "flexible", "other"],
     },
   },
 } as const
