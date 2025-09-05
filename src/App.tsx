@@ -10,6 +10,11 @@ import WorkZone from "./pages/WorkZone";
 import PostJob from "./pages/PostJob";
 import ApplyJob from "./pages/ApplyJob";
 import Profile from "./pages/Profile";
+import Dashboard from "./pages/Dashboard";
+import DashboardProfile from "./pages/DashboardProfile";
+import DashboardWorkspace from "./pages/DashboardWorkspace";
+import DashboardWallet from "./pages/DashboardWallet";
+import DashboardSettings from "./pages/DashboardSettings";
 import EduTask from "./pages/EduTask";
 import ProjectHub from "./pages/ProjectHub";
 import BubbleGigs from "./pages/BubbleGigs";
@@ -38,6 +43,11 @@ const App = () => (
             <Route path="/post-job" element={<PostJob />} />
             <Route path="/apply-job/:jobId" element={<ApplyJob />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/profile" element={<DashboardProfile />} />
+            <Route path="/dashboard/workspace" element={<DashboardWorkspace />} />
+            <Route path="/dashboard/wallet" element={<DashboardWallet />} />
+            <Route path="/dashboard/settings" element={<DashboardSettings />} />
             <Route path="/edutask" element={<EduTask />} />
             <Route path="/projecthub" element={<ProjectHub />} />
             <Route path="/bubblegigs" element={<BubbleGigs />} />

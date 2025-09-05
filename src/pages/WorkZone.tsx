@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Briefcase, Search, Filter, Clock, Star, DollarSign, CheckCircle, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import PageLayout from "@/components/PageLayout";
+import JobDetailsDialog from "@/components/JobDetailsDialog";
 
 const WorkZone = () => {
   const { user } = useAuth();
@@ -20,6 +21,8 @@ const WorkZone = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all-categories");
   const [jobTypeFilter, setJobTypeFilter] = useState("all-types");
+  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [isJobDialogOpen, setIsJobDialogOpen] = useState(false);
   const [quickStats, setQuickStats] = useState({
     totalJobs: 0,
     priceRange: "₹50-5000",
@@ -141,6 +144,16 @@ const WorkZone = () => {
       return;
     }
     navigate(`/apply-job/${jobId}`);
+  };
+
+  const handleViewDetails = (job: any) => {
+    setSelectedJob(job);
+    setIsJobDialogOpen(true);
+  };
+
+  const handleViewDetails = (job: any) => {
+    setSelectedJob(job);
+    setIsJobDialogOpen(true);
   };
 
   const formatTimeline = (timeline: string) => {
@@ -331,7 +344,7 @@ const WorkZone = () => {
                       >
                         Apply Now
                       </Button>
-                      <Button variant="outline">
+                      <Button variant="outline" onClick={() => handleViewDetails(job)}>
                         View Details
                       </Button>
                     </div>
@@ -394,6 +407,13 @@ const WorkZone = () => {
         </div>
       </section>
       </div>
+
+      {/* Job Details Dialog */}
+      <JobDetailsDialog 
+        job={selectedJob}
+        isOpen={isJobDialogOpen}
+        onClose={() => setIsJobDialogOpen(false)}
+      />
     </PageLayout>
   );
 };

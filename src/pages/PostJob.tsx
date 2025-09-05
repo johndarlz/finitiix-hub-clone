@@ -173,8 +173,27 @@ const PostJob = () => {
 
   return (
     <PageLayout>
-      <div className="min-h-screen bg-background py-8">
-        <div className="container mx-auto px-4 max-w-4xl">
+      <div className="min-h-screen bg-background">
+        {/* Hero Section */}
+        <section className="bg-gradient-to-br from-primary/10 via-background to-secondary/10 py-20">
+          <div className="container mx-auto px-4">
+            <div className="text-center max-w-4xl mx-auto">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+                <span className="bg-gradient-primary bg-clip-text text-transparent">
+                  WorkZone
+                </span>{" "}
+                Micro Freelance Jobs
+              </h1>
+              <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+                Post and apply to micro-jobs ranging from ₹50 to ₹5000. Get fast results with secure payments and instant delivery.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Post Job Form */}
+        <section className="py-8">
+          <div className="container mx-auto px-4 max-w-4xl">
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl font-bold">📝 Post a New Job</CardTitle>
@@ -448,7 +467,42 @@ const PostJob = () => {
               </form>
             </CardContent>
           </Card>
+
+          {/* How Post a Job Works */}
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold text-center">How Post a Job Works</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                    1
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Post Your Job</h3>
+                  <p className="text-muted-foreground">Fill in the details and requirements for your project</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-success text-success-foreground rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                    2
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Receive Proposals</h3>
+                  <p className="text-muted-foreground">Freelancers submit their proposals with competitive pricing</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-secondary text-secondary-foreground rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                    3
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Choose & Pay</h3>
+                  <p className="text-muted-foreground">Select the best freelancer and receive your completed work</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+        </section>
       </div>
     </PageLayout>
   );
