@@ -30,6 +30,7 @@ const DashboardWorkspace = () => {
   const [postedJobs, setPostedJobs] = useState<any[]>([]);
   const [appliedJobs, setAppliedJobs] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
+  const [uploadedProjects, setUploadedProjects] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -81,9 +82,19 @@ const DashboardWorkspace = () => {
         applicationsData = data || [];
       }
 
+      // Fetch uploaded projects by user
+      const { data: projectsData, error: projectsError } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (projectsError) throw projectsError;
+
       setPostedJobs(postedJobsData || []);
       setAppliedJobs(appliedJobsData || []);
       setApplications(applicationsData);
+      setUploadedProjects(projectsData || []);
 
     } catch (error: any) {
       console.error('Error fetching workspace data:', error);
@@ -192,10 +203,13 @@ const DashboardWorkspace = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="posted" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="posted">Posted Jobs ({postedJobs.length})</TabsTrigger>
-            <TabsTrigger value="applied">Applied Jobs ({appliedJobs.length})</TabsTrigger>
-            <TabsTrigger value="applications">Applications ({applications.length})</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="posted">WorkZone ({postedJobs.length})</TabsTrigger>
+            <TabsTrigger value="applied">Applications ({appliedJobs.length})</TabsTrigger>
+            <TabsTrigger value="projects">ProjectHub ({uploadedProjects.length})</TabsTrigger>
+            <TabsTrigger value="edutask">EduTask (0)</TabsTrigger>
+            <TabsTrigger value="bubblegigs">BubbleGigs (0)</TabsTrigger>
+            <TabsTrigger value="skillexchange">SkillExchange (0)</TabsTrigger>
           </TabsList>
 
           {/* Posted Jobs */}
@@ -343,6 +357,109 @@ const DashboardWorkspace = () => {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          {/* Projects */}
+          <TabsContent value="projects" className="space-y-4">
+            {uploadedProjects.length > 0 ? (
+              <div className="grid gap-4">
+                {uploadedProjects.map((project) => (
+                  <Card key={project.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <CardTitle className="text-lg">{project.title}</CardTitle>
+                            <Badge className={getStatusColor(project.status)}>
+                              {project.status}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <Badge variant="outline" className="text-xs">{project.category}</Badge>
+                            <span>Created {new Date(project.created_at).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm">
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Edit3 className="w-4 h-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-foreground leading-relaxed line-clamp-2 mb-4">
+                        {project.short_description}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {project.technologies?.slice(0, 5).map((tech: string, techIndex: number) => (
+                          <Badge key={techIndex} variant="outline" className="text-xs">
+                            {tech}
+                          </Badge>
+                        ))}
+                        {project.technologies?.length > 5 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{project.technologies.length - 5} more
+                          </Badge>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <Briefcase className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                  <h3 className="text-xl font-semibold mb-2">No projects uploaded yet</h3>
+                  <p className="text-muted-foreground mb-4">Start by uploading your first project</p>
+                  <Link to="/upload-project">
+                    <Button>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Upload Your First Project
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* EduTask */}
+          <TabsContent value="edutask" className="space-y-4">
+            <Card>
+              <CardContent className="text-center py-12">
+                <Badge className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <h3 className="text-xl font-semibold mb-2">EduTask Module</h3>
+                <p className="text-muted-foreground mb-4">Coming soon - Educational tasks and courses</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* BubbleGigs */}
+          <TabsContent value="bubblegigs" className="space-y-4">
+            <Card>
+              <CardContent className="text-center py-12">
+                <Badge className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <h3 className="text-xl font-semibold mb-2">BubbleGigs Module</h3>
+                <p className="text-muted-foreground mb-4">Coming soon - Video pitches and gigs</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* SkillExchange */}
+          <TabsContent value="skillexchange" className="space-y-4">
+            <Card>
+              <CardContent className="text-center py-12">
+                <Badge className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <h3 className="text-xl font-semibold mb-2">SkillExchange Module</h3>
+                <p className="text-muted-foreground mb-4">Coming soon - Skill exchange and collaboration</p>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Applications Received */}

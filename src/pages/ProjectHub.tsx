@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Rocket, Eye, Heart, Share2, Star, ExternalLink, Github, Play, Users, TrendingUp } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
+import ProjectsSection from "@/components/ProjectsSection";
 
 const ProjectHub = () => {
   const projectCategories = [
@@ -122,12 +123,12 @@ const ProjectHub = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button variant="outline" size="lg" className="text-lg px-8 py-6">
-                Explore Projects
-              </Button>
               <Button variant="hero" size="lg" className="text-lg px-8 py-6" onClick={() => window.location.href = '/upload-project'}>
                 <Rocket className="w-5 h-5" />
                 Upload Project
+              </Button>
+              <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+                Explore Projects
               </Button>
             </div>
 
@@ -167,95 +168,8 @@ const ProjectHub = () => {
         </div>
       </section>
 
-      {/* Featured Projects */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Featured Projects</h2>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProjects.map((project, index) => (
-              <Card key={index} className="group hover:shadow-medium transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
-                <CardHeader className="pb-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="text-4xl">{project.image}</div>
-                    <div className="flex items-center gap-2">
-                      {project.featured && (
-                        <Badge variant="secondary" className="text-xs">
-                          <Star className="w-3 h-3 mr-1" />
-                          Featured
-                        </Badge>
-                      )}
-                      <Badge variant="outline" className="text-xs">
-                        {project.category}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                    {project.title}
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">by {project.creator}</p>
-                </CardHeader>
-                
-                <CardContent className="space-y-4">
-                  <CardDescription className="text-foreground leading-relaxed line-clamp-3">
-                    {project.description}
-                  </CardDescription>
-                  
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag, tagIndex) => (
-                      <Badge key={tagIndex} variant="outline" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                  
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        <span>{project.views}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Heart className="w-4 h-4" />
-                        <span>{project.likes}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-primary text-primary" />
-                        <span>{project.rating}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    {project.liveDemo && (
-                      <Button variant="hero" size="sm" className="flex-1">
-                        <Play className="w-4 h-4" />
-                        Live Demo
-                      </Button>
-                    )}
-                    {project.github && (
-                      <Button variant="outline" size="sm" className="flex-1">
-                        <Github className="w-4 h-4" />
-                        Code
-                      </Button>
-                    )}
-                    <Button variant="ghost" size="sm">
-                      <Share2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
-              Load More Projects
-            </Button>
-          </div>
-        </div>
-      </section>
+      {/* Projects from Database */}
+      <ProjectsSection />
 
       {/* How It Works */}
       <section className="py-20 bg-gradient-card">
