@@ -294,16 +294,18 @@ const PostJob = () => {
                       <SelectItem value="1-week">1 week</SelectItem>
                       <SelectItem value="2-weeks">2 weeks</SelectItem>
                       <SelectItem value="flexible">Flexible</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
-                  {formData.timeline === 'other' && (
-                    <Input
-                      className="mt-2"
-                      value={formData.timeline_other}
-                      onChange={(e) => setFormData({...formData, timeline_other: e.target.value})}
-                      placeholder="Specify timeline"
-                    />
+                  {formData.timeline === 'flexible' && (
+                    <div className="mt-2">
+                      <Label htmlFor="timeline_other">Specify your preferred timeline</Label>
+                      <Input
+                        id="timeline_other"
+                        value={formData.timeline_other}
+                        onChange={(e) => setFormData({...formData, timeline_other: e.target.value})}
+                        placeholder="e.g., 3 weeks, 1 month, etc."
+                      />
+                    </div>
                   )}
                 </div>
 

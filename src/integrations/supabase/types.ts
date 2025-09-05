@@ -241,30 +241,45 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
+          experience: string | null
           id: string
+          location: string | null
           name: string
           phone_number: string | null
+          portfolio_url: string | null
+          skills: string | null
           updated_at: string
           user_id: string
           username: string
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
+          experience?: string | null
           id?: string
+          location?: string | null
           name: string
           phone_number?: string | null
+          portfolio_url?: string | null
+          skills?: string | null
           updated_at?: string
           user_id: string
           username: string
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
+          experience?: string | null
           id?: string
+          location?: string | null
           name?: string
           phone_number?: string | null
+          portfolio_url?: string | null
+          skills?: string | null
           updated_at?: string
           user_id?: string
           username?: string
