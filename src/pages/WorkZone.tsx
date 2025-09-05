@@ -151,11 +151,6 @@ const WorkZone = () => {
     setIsJobDialogOpen(true);
   };
 
-  const handleViewDetails = (job: any) => {
-    setSelectedJob(job);
-    setIsJobDialogOpen(true);
-  };
-
   const formatTimeline = (timeline: string) => {
     return timeline.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
