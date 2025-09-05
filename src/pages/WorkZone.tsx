@@ -18,8 +18,8 @@ const WorkZone = () => {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [jobTypeFilter, setJobTypeFilter] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all-categories");
+  const [jobTypeFilter, setJobTypeFilter] = useState("all-types");
   const [quickStats, setQuickStats] = useState({
     totalJobs: 0,
     priceRange: "₹50-5000",
@@ -73,11 +73,11 @@ const WorkZone = () => {
         query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,skills_required.cs.{${searchQuery}}`);
       }
 
-      if (selectedCategory) {
+      if (selectedCategory && selectedCategory !== 'all-categories') {
         query = query.eq('category', selectedCategory);
       }
 
-      if (jobTypeFilter) {
+      if (jobTypeFilter && jobTypeFilter !== 'all-types') {
         query = query.eq('job_type', jobTypeFilter as 'online' | 'offline');
       }
 
@@ -237,7 +237,7 @@ const WorkZone = () => {
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all-categories">All Categories</SelectItem>
                 {jobCategories.map((category) => (
                   <SelectItem key={category} value={category}>{category}</SelectItem>
                 ))}
@@ -248,7 +248,7 @@ const WorkZone = () => {
                 <SelectValue placeholder="Job Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="all-types">All Types</SelectItem>
                 <SelectItem value="online">Online</SelectItem>
                 <SelectItem value="offline">Offline</SelectItem>
               </SelectContent>
@@ -344,14 +344,14 @@ const WorkZone = () => {
               <Briefcase className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-xl font-semibold mb-2">No jobs found</h3>
               <p className="text-muted-foreground mb-4">
-                {searchQuery || selectedCategory || jobTypeFilter 
+                {searchQuery || (selectedCategory !== 'all-categories') || (jobTypeFilter !== 'all-types')
                   ? "Try adjusting your search filters" 
                   : "Be the first to post a job!"}
               </p>
               <Button variant="outline" onClick={() => {
                 setSearchQuery("");
-                setSelectedCategory("");
-                setJobTypeFilter("");
+                setSelectedCategory("all-categories");
+                setJobTypeFilter("all-types");
                 fetchJobs();
               }}>
                 Clear Filters
