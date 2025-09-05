@@ -205,6 +205,93 @@ export type Database = {
         }
         Relationships: []
       }
+      myprofile: {
+        Row: {
+          achievements: Json | null
+          additional_notes: string | null
+          badges: Json | null
+          bio: string | null
+          certifications: Json | null
+          contact_email: string | null
+          created_at: string
+          date_of_birth: string | null
+          education: Json | null
+          full_name: string | null
+          gender: string | null
+          headline: string | null
+          id: string
+          languages: string[] | null
+          location: string | null
+          phone_number: string | null
+          portfolio_projects: Json | null
+          profile_picture: string | null
+          resume_url: string | null
+          skills: string[] | null
+          social_links: Json | null
+          testimonials: Json | null
+          updated_at: string
+          user_id: string
+          work_experience: Json | null
+          years_experience: number | null
+        }
+        Insert: {
+          achievements?: Json | null
+          additional_notes?: string | null
+          badges?: Json | null
+          bio?: string | null
+          certifications?: Json | null
+          contact_email?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          education?: Json | null
+          full_name?: string | null
+          gender?: string | null
+          headline?: string | null
+          id?: string
+          languages?: string[] | null
+          location?: string | null
+          phone_number?: string | null
+          portfolio_projects?: Json | null
+          profile_picture?: string | null
+          resume_url?: string | null
+          skills?: string[] | null
+          social_links?: Json | null
+          testimonials?: Json | null
+          updated_at?: string
+          user_id: string
+          work_experience?: Json | null
+          years_experience?: number | null
+        }
+        Update: {
+          achievements?: Json | null
+          additional_notes?: string | null
+          badges?: Json | null
+          bio?: string | null
+          certifications?: Json | null
+          contact_email?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          education?: Json | null
+          full_name?: string | null
+          gender?: string | null
+          headline?: string | null
+          id?: string
+          languages?: string[] | null
+          location?: string | null
+          phone_number?: string | null
+          portfolio_projects?: Json | null
+          profile_picture?: string | null
+          resume_url?: string | null
+          skills?: string[] | null
+          social_links?: Json | null
+          testimonials?: Json | null
+          updated_at?: string
+          user_id?: string
+          work_experience?: Json | null
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string | null
@@ -283,6 +370,72 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          additional_notes: string | null
+          author_name: string
+          category: string
+          contact_email: string
+          created_at: string
+          detailed_overview: string | null
+          drive_url: string | null
+          github_url: string | null
+          id: string
+          live_demo_url: string | null
+          project_files: string[] | null
+          screenshot_urls: string[] | null
+          short_description: string
+          status: string | null
+          technologies: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+          video_demo_url: string | null
+        }
+        Insert: {
+          additional_notes?: string | null
+          author_name: string
+          category: string
+          contact_email: string
+          created_at?: string
+          detailed_overview?: string | null
+          drive_url?: string | null
+          github_url?: string | null
+          id?: string
+          live_demo_url?: string | null
+          project_files?: string[] | null
+          screenshot_urls?: string[] | null
+          short_description: string
+          status?: string | null
+          technologies?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+          video_demo_url?: string | null
+        }
+        Update: {
+          additional_notes?: string | null
+          author_name?: string
+          category?: string
+          contact_email?: string
+          created_at?: string
+          detailed_overview?: string | null
+          drive_url?: string | null
+          github_url?: string | null
+          id?: string
+          live_demo_url?: string | null
+          project_files?: string[] | null
+          screenshot_urls?: string[] | null
+          short_description?: string
+          status?: string | null
+          technologies?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          video_demo_url?: string | null
         }
         Relationships: []
       }

@@ -12,9 +12,11 @@ import ApplyJob from "./pages/ApplyJob";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import DashboardProfile from "./pages/DashboardProfile";
-import DashboardWorkspace from "./pages/DashboardWorkspace";
+import DashboardWorkspaceNew from "./pages/DashboardWorkspaceNew";
 import DashboardWallet from "./pages/DashboardWallet";
 import DashboardSettings from "./pages/DashboardSettings";
+import UploadProject from "./pages/UploadProject";
+import ShareableProfile from "./pages/ShareableProfile";
 import EduTask from "./pages/EduTask";
 import ProjectHub from "./pages/ProjectHub";
 import BubbleGigs from "./pages/BubbleGigs";
@@ -45,9 +47,11 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/profile" element={<DashboardProfile />} />
-            <Route path="/dashboard/workspace" element={<DashboardWorkspace />} />
-            <Route path="/dashboard/wallet" element={<DashboardWallet />} />
-            <Route path="/dashboard/settings" element={<DashboardSettings />} />
+            <Route path="/dashboard/workspace" element={<DashboardWorkspaceNew />} />
+        <Route path="/dashboard/wallet" element={<DashboardWallet />} />
+        <Route path="/dashboard/settings" element={<DashboardSettings />} />
+        <Route path="/upload-project" element={<UploadProject />} />
+        <Route path="/profile/:username" element={<ShareableProfile />} />
             <Route path="/edutask" element={<EduTask />} />
             <Route path="/projecthub" element={<ProjectHub />} />
             <Route path="/bubblegigs" element={<BubbleGigs />} />
