@@ -38,6 +38,131 @@ export type Database = {
         }
         Relationships: []
       }
+      gig_bookings: {
+        Row: {
+          buyer_email: string
+          buyer_name: string
+          buyer_phone: string | null
+          buyer_user_id: string | null
+          created_at: string | null
+          gig_id: string
+          id: string
+          payment_method: string
+          project_requirements: string
+          reference_files: string[] | null
+          reference_links: string[] | null
+          special_instructions: string | null
+          status: string | null
+          total_amount: number
+          updated_at: string | null
+        }
+        Insert: {
+          buyer_email: string
+          buyer_name: string
+          buyer_phone?: string | null
+          buyer_user_id?: string | null
+          created_at?: string | null
+          gig_id: string
+          id?: string
+          payment_method: string
+          project_requirements: string
+          reference_files?: string[] | null
+          reference_links?: string[] | null
+          special_instructions?: string | null
+          status?: string | null
+          total_amount: number
+          updated_at?: string | null
+        }
+        Update: {
+          buyer_email?: string
+          buyer_name?: string
+          buyer_phone?: string | null
+          buyer_user_id?: string | null
+          created_at?: string | null
+          gig_id?: string
+          id?: string
+          payment_method?: string
+          project_requirements?: string
+          reference_files?: string[] | null
+          reference_links?: string[] | null
+          special_instructions?: string | null
+          status?: string | null
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gig_bookings_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "gigs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gigs: {
+        Row: {
+          additional_notes: string | null
+          category: string
+          cover_image_url: string | null
+          created_at: string | null
+          creator_name: string
+          delivery_time: string
+          description: string
+          id: string
+          links: string[] | null
+          pitch_video_url: string | null
+          portfolio_samples: string[] | null
+          price: number
+          revisions: string
+          skills_tags: string[] | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          category: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          creator_name: string
+          delivery_time: string
+          description: string
+          id?: string
+          links?: string[] | null
+          pitch_video_url?: string | null
+          portfolio_samples?: string[] | null
+          price: number
+          revisions: string
+          skills_tags?: string[] | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          additional_notes?: string | null
+          category?: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          creator_name?: string
+          delivery_time?: string
+          description?: string
+          id?: string
+          links?: string[] | null
+          pitch_video_url?: string | null
+          portfolio_samples?: string[] | null
+          price?: number
+          revisions?: string
+          skills_tags?: string[] | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       job_applications: {
         Row: {
           additional_notes: string | null

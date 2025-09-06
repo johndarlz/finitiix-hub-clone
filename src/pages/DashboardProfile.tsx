@@ -154,12 +154,31 @@ const DashboardProfile = () => {
 
     setSaving(true);
     try {
-      const { error } = await supabase
+      // Check if profile exists first
+      const { data: existingProfile } = await supabase
         .from('myprofile')
-        .upsert({
-          user_id: user.id,
-          ...formData
-        });
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      let error;
+      if (existingProfile) {
+        // Update existing profile
+        const result = await supabase
+          .from('myprofile')
+          .update(formData)
+          .eq('user_id', user.id);
+        error = result.error;
+      } else {
+        // Insert new profile
+        const result = await supabase
+          .from('myprofile')
+          .insert({
+            user_id: user.id,
+            ...formData
+          });
+        error = result.error;
+      }
 
       if (error) throw error;
 
@@ -171,6 +190,7 @@ const DashboardProfile = () => {
       setEditMode(false);
       fetchProfile();
     } catch (error: any) {
+      console.error('Error updating profile:', error);
       toast({
         title: "Error updating profile",
         description: error.message,

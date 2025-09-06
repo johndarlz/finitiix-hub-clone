@@ -1,14 +1,54 @@
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Video, Play, Clock, Star, Eye, MessageCircle, TrendingUp, Users, DollarSign } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Star, Clock, TrendingUp, Users, Award, CheckCircle, Play, Briefcase, Palette, Code, Video, PenTool, Megaphone, MessageSquare, Music, FileText, Plus, DollarSign, Eye, MessageCircle } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
+import { GigBookingDialog } from "@/components/GigBookingDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
-const BubbleGigs = () => {
+export default function BubbleGigs() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [gigs, setGigs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedGig, setSelectedGig] = useState<any>(null);
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+
   const gigCategories = [
-    "Design & Creative", "Programming & Tech", "Video Editing", "Content Creation",
-    "Digital Marketing", "Business Consulting", "Music & Audio", "Writing"
+    "Logo Design", "Web Development", "Content Writing", "Video Editing",
+    "Social Media Marketing", "Graphic Design", "SEO Services", "Translation",
+    "Voice Over", "Animation", "App Development", "Data Entry"
   ];
+
+  useEffect(() => {
+    fetchGigs();
+  }, []);
+
+  const fetchGigs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('gigs')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setGigs(data || []);
+    } catch (error) {
+      console.error('Error fetching gigs:', error);
+      toast({ title: "Error loading gigs", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBookGig = (gig: any) => {
+    setSelectedGig(gig);
+    setBookingDialogOpen(true);
+  };
 
   const featuredGigs = [
     {
@@ -144,16 +184,16 @@ const BubbleGigs = () => {
               Create 1-minute video pitches for your services. Buyers can scroll, discover, and hire you instantly.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button variant="hero" size="lg" className="text-lg px-8 py-6">
-                <Video className="w-5 h-5" />
-                Create Your Gig
-              </Button>
-              <Button variant="outline" size="lg" className="text-lg px-8 py-6">
-                <Play className="w-5 h-5" />
-                Browse Gigs
-              </Button>
-            </div>
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          <Button size="lg" className="flex-1" onClick={() => navigate('/create-gig')}>
+            <Plus className="mr-2 h-5 w-5" />
+            Create Your Gig
+          </Button>
+          <Button variant="outline" size="lg" className="flex-1">
+            <TrendingUp className="mr-2 h-5 w-5" />
+            Browse Gigs
+          </Button>
+        </div>
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
@@ -191,87 +231,84 @@ const BubbleGigs = () => {
         </div>
       </section>
 
-      {/* Featured Gigs */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Trending BubbleGigs</h2>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredGigs.map((gig, index) => (
-              <Card key={index} className="group hover:shadow-medium transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
-                <CardHeader className="pb-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="text-4xl">{gig.image}</div>
-                    <div className="flex flex-col items-end gap-2">
-                      <div className="text-2xl font-bold text-success">{gig.price}</div>
-                      {gig.isTopRated && (
-                        <Badge variant="secondary" className="text-xs">
-                          <Star className="w-3 h-3 mr-1 fill-primary text-primary" />
-                          Top Rated
+      {/* Real Gigs Section */}
+      <div className="container mx-auto px-4">
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold text-center mb-8">🔥 Available BubbleGigs</h2>
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+              <p className="mt-2 text-muted-foreground">Loading gigs...</p>
+            </div>
+          ) : gigs.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Briefcase className="h-12 w-12 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">No gigs available yet</h3>
+              <p className="text-muted-foreground mb-4">Be the first to create a gig and start earning!</p>
+              <Button onClick={() => navigate('/create-gig')}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create Your First Gig
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {gigs.map((gig) => (
+                <Card key={gig.id} className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-semibold">{gig.creator_name.charAt(0)}</span>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-lg">{gig.title}</h3>
+                          <p className="text-sm text-muted-foreground">by {gig.creator_name}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-primary">₹{gig.price}</div>
+                      </div>
+                    </div>
+                    
+                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{gig.description}</p>
+                    
+                    <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Badge variant="outline">{gig.category}</Badge>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>{gig.delivery_time}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {gig.skills_tags?.slice(0, 3).map((tag: string, tagIndex: number) => (
+                        <Badge key={tagIndex} variant="secondary" className="text-xs">
+                          {tag}
                         </Badge>
+                      ))}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button className="flex-1" onClick={() => handleBookGig(gig)}>
+                        Book Now
+                      </Button>
+                      {gig.pitch_video_url && (
+                        <Button variant="outline" size="sm">
+                          <Play className="h-4 w-4" />
+                        </Button>
                       )}
                     </div>
-                  </div>
-                  
-                  <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-2">
-                    {gig.title}
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">by {gig.creator}</p>
-                </CardHeader>
-                
-                <CardContent className="space-y-4">
-                  <CardDescription className="text-foreground leading-relaxed line-clamp-3">
-                    {gig.description}
-                  </CardDescription>
-                  
-                  <div className="flex flex-wrap gap-2">
-                    {gig.tags.slice(0, 3).map((tag, tagIndex) => (
-                      <Badge key={tagIndex} variant="outline" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      <span>{gig.duration}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-primary text-primary" />
-                      <span>{gig.rating} ({gig.reviews})</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Eye className="w-4 h-4" />
-                      <span>{gig.views.toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MessageCircle className="w-4 h-4" />
-                      <span>{gig.responseTime}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-3">
-                    <Button variant="hero" className="flex-1">
-                      <Play className="w-4 h-4" />
-                      Watch Pitch
-                    </Button>
-                    <Button variant="outline">
-                      Book Now
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
-              Load More Gigs
-            </Button>
-          </div>
-        </div>
-      </section>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
 
       {/* How It Works */}
       <section className="py-20 bg-gradient-card">
@@ -328,8 +365,12 @@ const BubbleGigs = () => {
         </div>
       </section>
       </div>
+      
+      <GigBookingDialog 
+        gig={selectedGig}
+        open={bookingDialogOpen}
+        onOpenChange={setBookingDialogOpen}
+      />
     </PageLayout>
   );
-};
-
-export default BubbleGigs;
+}

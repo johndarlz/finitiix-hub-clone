@@ -20,6 +20,7 @@ import ShareableProfile from "./pages/ShareableProfile";
 import EduTask from "./pages/EduTask";
 import ProjectHub from "./pages/ProjectHub";
 import BubbleGigs from "./pages/BubbleGigs";
+import CreateGig from "./pages/CreateGig";
 import SkillExchange from "./pages/SkillExchange";
 import AskTeach from "./pages/AskTeach";
 import About from "./pages/About";
@@ -54,8 +55,9 @@ const App = () => (
         <Route path="/profile/:username" element={<ShareableProfile />} />
             <Route path="/edutask" element={<EduTask />} />
             <Route path="/projecthub" element={<ProjectHub />} />
-            <Route path="/bubblegigs" element={<BubbleGigs />} />
-            <Route path="/skillexchange" element={<SkillExchange />} />
+            <Route path="/bubble-gigs" element={<BubbleGigs />} />
+            <Route path="/create-gig" element={<CreateGig />} />
+            <Route path="/skill-exchange" element={<SkillExchange />} />
             <Route path="/ask-teach" element={<AskTeach />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/signin" element={<SignIn />} />
