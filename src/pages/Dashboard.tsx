@@ -53,13 +53,28 @@ const Dashboard = () => {
         .select('*', { count: 'exact', head: true })
         .eq('applicant_id', user?.id);
 
+      // Fetch projects uploaded by user
+      const { count: projectsCount } = await supabase
+        .from('projects')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user?.id);
+
+      // Fetch gigs created by user
+      const { count: gigsCount } = await supabase
+        .from('gigs')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user?.id);
+
+      // Calculate earnings from accepted applications (mock calculation)
+      const earnings = (applicationsCount || 0) * 1500; // Mock earning per application
+
       setStats({
         totalJobsPosted: jobsCount || 0,
         totalCoursesCreated: 0, // Will be implemented when EduTask is built
-        totalProjectsUploaded: 0, // Will be implemented when ProjectHub is built
-        totalGigs: 0, // Will be implemented when BubbleGigs/SkillExchange is built
+        totalProjectsUploaded: projectsCount || 0,
+        totalGigs: gigsCount || 0,
         totalQAPosts: 0, // Will be implemented when Ask & Teach is built
-        totalEarnings: 0 // Will be calculated from completed jobs
+        totalEarnings: earnings
       });
 
     } catch (error: any) {

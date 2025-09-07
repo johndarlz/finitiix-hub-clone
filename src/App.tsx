@@ -11,12 +11,14 @@ import PostJob from "./pages/PostJob";
 import ApplyJob from "./pages/ApplyJob";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
-import DashboardProfile from "./pages/DashboardProfile";
-import DashboardWorkspaceNew from "./pages/DashboardWorkspaceNew";
-import DashboardWallet from "./pages/DashboardWallet";
-import DashboardSettings from "./pages/DashboardSettings";
+import DashboardProfile from "@/pages/DashboardProfile";
+import DashboardSettings from "@/pages/DashboardSettings";
+import DashboardWallet from "@/pages/DashboardWallet";
+import DashboardWorkspaceNew from "@/pages/DashboardWorkspaceNew";
+import Feedback from "@/pages/Feedback";
+import ShareableProfile from "@/pages/ShareableProfile";
+import AIChat from "@/components/AIChat";
 import UploadProject from "./pages/UploadProject";
-import ShareableProfile from "./pages/ShareableProfile";
 import EduTask from "./pages/EduTask";
 import ProjectHub from "./pages/ProjectHub";
 import BubbleGigs from "./pages/BubbleGigs";
@@ -49,10 +51,10 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/profile" element={<DashboardProfile />} />
             <Route path="/dashboard/workspace" element={<DashboardWorkspaceNew />} />
-        <Route path="/dashboard/wallet" element={<DashboardWallet />} />
-        <Route path="/dashboard/settings" element={<DashboardSettings />} />
-        <Route path="/upload-project" element={<UploadProject />} />
-        <Route path="/profile/:username" element={<ShareableProfile />} />
+            <Route path="/dashboard/wallet" element={<DashboardWallet />} />
+            <Route path="/dashboard/settings" element={<DashboardSettings />} />
+            <Route path="/dashboard/feedback" element={<Feedback />} />
+            <Route path="/upload-project" element={<UploadProject />} />
             <Route path="/edutask" element={<EduTask />} />
             <Route path="/projecthub" element={<ProjectHub />} />
             <Route path="/bubble-gigs" element={<BubbleGigs />} />
@@ -64,10 +66,13 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/about" element={<About />} />
+            {/* Public profile route - must be last before catch-all */}
+            <Route path="/:username" element={<ShareableProfile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        <AIChat />
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>

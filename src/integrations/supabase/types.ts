@@ -38,6 +38,51 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          consent_contact: boolean | null
+          created_at: string
+          description: string
+          email: string
+          feedback_type: string
+          id: string
+          name: string
+          rating: number | null
+          screenshot_url: string | null
+          subject: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          consent_contact?: boolean | null
+          created_at?: string
+          description: string
+          email: string
+          feedback_type: string
+          id?: string
+          name: string
+          rating?: number | null
+          screenshot_url?: string | null
+          subject: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          consent_contact?: boolean | null
+          created_at?: string
+          description?: string
+          email?: string
+          feedback_type?: string
+          id?: string
+          name?: string
+          rating?: number | null
+          screenshot_url?: string | null
+          subject?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       gig_bookings: {
         Row: {
           buyer_email: string

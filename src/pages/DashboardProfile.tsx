@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useToast } from "@/hooks/use-toast";
+import FileUpload from "@/components/FileUpload";
 
 const DashboardProfile = () => {
   const { user } = useAuth();
@@ -202,7 +203,16 @@ const DashboardProfile = () => {
   };
 
   const handleShareProfile = async () => {
-    const profileUrl = `${window.location.origin}/profile/${user?.id}`;
+    // Get username from profiles table first
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('user_id', user?.id)
+      .single();
+      
+    const username = profileData?.username || user?.email?.split('@')[0];
+    const profileUrl = `${window.location.origin}/${username}`;
+    
     try {
       await navigator.clipboard.writeText(profileUrl);
       toast({
@@ -334,10 +344,12 @@ const DashboardProfile = () => {
                       </AvatarFallback>
                     </Avatar>
                     {editMode && (
-                      <Button variant="outline" size="sm">
-                        <Upload className="w-4 h-4 mr-2" />
-                        Change Photo
-                      </Button>
+                      <FileUpload
+                        type="profile"
+                        currentFile={formData.profile_picture}
+                        accept="image/*"
+                        onFileUploaded={(url) => setFormData({...formData, profile_picture: url})}
+                      />
                     )}
                   </div>
 
