@@ -113,24 +113,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             })}
           </nav>
 
-          {/* Bottom Actions */}
-          <div className="p-4 border-t space-y-2">
-            <Link to="/">
-              <Button variant="outline" className="w-full justify-start" size="sm">
-                <Home className="w-4 h-4 mr-2" />
-                Go to Home
-              </Button>
-            </Link>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start text-muted-foreground hover:text-destructive" 
-              size="sm"
-              onClick={handleSignOut}
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
         </div>
       </aside>
 
@@ -165,6 +147,22 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </div>
 
             <div className="flex items-center gap-3">
+              <Link to="/">
+                <Button variant="ghost" size="sm" className="hidden sm:flex">
+                  <Home className="w-4 h-4 mr-2" />
+                  Home
+                </Button>
+              </Link>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-muted-foreground hover:text-destructive"
+                onClick={handleSignOut}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </Button>
+              <div className="border-l h-6 mx-1" />
               <Avatar className="w-8 h-8">
                 <AvatarImage src={user?.user_metadata?.avatar_url} />
                 <AvatarFallback>
