@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import DashboardLayout from "@/components/DashboardLayout";
 
 interface Job {
   id: string;
@@ -39,7 +40,7 @@ interface Project {
   github_url?: string;
 }
 
-const DashboardWorkspaceNew = () => {
+const DashboardWorkspaceContent = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -422,6 +423,14 @@ const DashboardWorkspaceNew = () => {
         </TabsContent>
       </Tabs>
     </div>
+  );
+};
+
+const DashboardWorkspaceNew = () => {
+  return (
+    <DashboardLayout>
+      <DashboardWorkspaceContent />
+    </DashboardLayout>
   );
 };
 
