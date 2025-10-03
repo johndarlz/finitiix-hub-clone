@@ -609,6 +609,104 @@ export type Database = {
         }
         Relationships: []
       }
+      skill_exchange_proposals: {
+        Row: {
+          created_at: string
+          exchange_id: string
+          id: string
+          message: string
+          proposer_email: string
+          proposer_name: string
+          proposer_user_id: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          exchange_id: string
+          id?: string
+          message: string
+          proposer_email: string
+          proposer_name: string
+          proposer_user_id: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          exchange_id?: string
+          id?: string
+          message?: string
+          proposer_email?: string
+          proposer_name?: string
+          proposer_user_id?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_exchange_proposals_exchange_id_fkey"
+            columns: ["exchange_id"]
+            isOneToOne: false
+            referencedRelation: "skill_exchanges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skill_exchanges: {
+        Row: {
+          category: string
+          coins: number
+          created_at: string
+          description: string
+          exchange_type: string | null
+          experience_level: string | null
+          id: string
+          location_preference: string | null
+          offerer_name: string
+          offering_skill: string
+          status: string | null
+          timeframe: string
+          updated_at: string
+          user_id: string
+          wanting_skill: string
+        }
+        Insert: {
+          category: string
+          coins?: number
+          created_at?: string
+          description: string
+          exchange_type?: string | null
+          experience_level?: string | null
+          id?: string
+          location_preference?: string | null
+          offerer_name: string
+          offering_skill: string
+          status?: string | null
+          timeframe: string
+          updated_at?: string
+          user_id: string
+          wanting_skill: string
+        }
+        Update: {
+          category?: string
+          coins?: number
+          created_at?: string
+          description?: string
+          exchange_type?: string | null
+          experience_level?: string | null
+          id?: string
+          location_preference?: string | null
+          offerer_name?: string
+          offering_skill?: string
+          status?: string | null
+          timeframe?: string
+          updated_at?: string
+          user_id?: string
+          wanting_skill?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

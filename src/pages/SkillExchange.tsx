@@ -1,95 +1,122 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRightLeft, Coins, Handshake, Star, TrendingUp, Users, Clock, CheckCircle } from "lucide-react";
+import { ArrowRightLeft, Coins, Handshake, Star, TrendingUp, Users, Clock, CheckCircle, Plus, Loader2 } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { CreateSkillExchangeDialog } from "@/components/CreateSkillExchangeDialog";
+import { ProposeExchangeDialog } from "@/components/ProposeExchangeDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 const SkillExchange = () => {
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const [exchanges, setExchanges] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [proposeDialogOpen, setProposeDialogOpen] = useState(false);
+  const [selectedExchange, setSelectedExchange] = useState<any>(null);
+
   const skillCategories = [
     "Design ↔ Development", "Writing ↔ Marketing", "Music ↔ Video", "Teaching ↔ Learning",
     "Business ↔ Tech", "Language ↔ Culture", "Fitness ↔ Nutrition", "Art ↔ Photography"
   ];
 
-  const exchangeOffers = [
-    {
-      offerer: "Priya Sharma",
-      offering: "Professional Logo Design",
-      wanting: "WordPress Website Development",
-      description: "I'll design a complete brand identity package (logo, business card, letterhead) in exchange for a basic WordPress website with 5 pages.",
-      coins: 150,
-      category: "Design ↔ Development",
-      timeframe: "1 week",
-      rating: 4.9,
-      completedExchanges: 23,
-      verified: true,
-      type: "Skill Exchange"
-    },
-    {
-      offerer: "Rahul Verma",
-      offering: "Digital Marketing Strategy",
-      wanting: "Mobile App UI Design",
-      description: "Complete digital marketing plan with SEO, social media, and ad campaigns for mobile app UI/UX design with prototypes.",
-      coins: 200,
-      category: "Marketing ↔ Design",
-      timeframe: "2 weeks",
-      rating: 4.8,
-      completedExchanges: 18,
-      verified: true,
-      type: "Skill Exchange"
-    },
-    {
-      offerer: "Sneha Patel",
-      offering: "English Content Writing",
-      wanting: "Python Programming Lessons",
-      description: "I'll write 10 SEO blog posts (500+ words each) in exchange for 10 hours of Python programming tutoring sessions.",
-      coins: 120,
-      category: "Writing ↔ Programming",
-      timeframe: "3 weeks",
-      rating: 4.7,
-      completedExchanges: 31,
-      verified: false,
-      type: "Skill Exchange"
-    },
-    {
-      offerer: "Arjun Kumar",
-      offering: "Data Analysis & Visualization",
-      wanting: "Social Media Management",
-      description: "Complete data analysis project with interactive dashboards for 2 months of social media management (3 platforms).",
-      coins: 300,
-      category: "Data ↔ Marketing",
-      timeframe: "2 months",
-      rating: 5.0,
-      completedExchanges: 12,
-      verified: true,
-      type: "Premium Exchange"
-    },
-    {
-      offerer: "Meera Singh",
-      offering: "Graphic Design Package",
-      wanting: "Voice Over Services",
-      description: "Social media graphics package (20 posts, stories, covers) for professional voice over recording (up to 10 minutes).",
-      coins: 80,
-      category: "Design ↔ Audio",
-      timeframe: "5 days",
-      rating: 4.6,
-      completedExchanges: 45,
-      verified: true,
-      type: "Quick Exchange"
-    },
-    {
-      offerer: "Kiran Gupta",
-      offering: "Video Editing Services",
-      wanting: "Copywriting for Website",
-      description: "Professional video editing for YouTube/social media (up to 10 minutes) for complete website copywriting (5 pages).",
-      coins: 100,
-      category: "Video ↔ Writing",
-      timeframe: "1 week",
-      rating: 4.8,
-      completedExchanges: 27,
-      verified: false,
-      type: "Skill Exchange"
+  useEffect(() => {
+    fetchExchanges();
+    setupRealtimeSubscription();
+  }, []);
+
+  const fetchExchanges = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("skill_exchanges")
+        .select("*")
+        .eq("status", "active")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setExchanges(data || []);
+    } catch (error: any) {
+      console.error("Error fetching exchanges:", error);
+      toast({
+        title: "Error loading exchanges",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const setupRealtimeSubscription = () => {
+    const channel = supabase
+      .channel("skill-exchanges-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "skill_exchanges",
+        },
+        (payload) => {
+          console.log("New exchange added:", payload);
+          if (payload.new.status === "active") {
+            setExchanges((prev) => [payload.new, ...prev]);
+            toast({
+              title: "New skill exchange available!",
+              description: `${payload.new.offering_skill} ↔ ${payload.new.wanting_skill}`,
+            });
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "skill_exchanges",
+        },
+        (payload) => {
+          console.log("Exchange updated:", payload);
+          setExchanges((prev) =>
+            prev.map((ex) => (ex.id === payload.new.id ? payload.new : ex))
+          );
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "skill_exchanges",
+        },
+        (payload) => {
+          console.log("Exchange deleted:", payload);
+          setExchanges((prev) => prev.filter((ex) => ex.id !== payload.old.id));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
+  const handleProposeExchange = (exchange: any) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to propose an exchange",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSelectedExchange(exchange);
+    setProposeDialogOpen(true);
+  };
 
   const quickStats = [
     { icon: <ArrowRightLeft className="w-5 h-5" />, value: "3,000+", label: "Active Exchanges" },
@@ -146,9 +173,14 @@ const SkillExchange = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button variant="hero" size="lg" className="text-lg px-8 py-6">
-                <ArrowRightLeft className="w-5 h-5" />
-                Start Exchange
+              <Button 
+                variant="hero" 
+                size="lg" 
+                className="text-lg px-8 py-6"
+                onClick={() => setCreateDialogOpen(true)}
+              >
+                <Plus className="w-5 h-5" />
+                Post Exchange
               </Button>
               <Button variant="outline" size="lg" className="text-lg px-8 py-6">
                 <Coins className="w-5 h-5" />
@@ -195,32 +227,52 @@ const SkillExchange = () => {
       {/* Exchange Offers */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Active Exchange Offers</h2>
+          <div className="flex items-center justify-between mb-12">
+            <h2 className="text-3xl font-bold">Active Exchange Offers</h2>
+            <Badge variant="outline" className="text-lg px-4 py-2">
+              {exchanges.length} Live Exchanges
+            </Badge>
+          </div>
           
+          {loading ? (
+            <div className="text-center py-12">
+              <Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" />
+              <p className="mt-4 text-muted-foreground">Loading exchanges...</p>
+            </div>
+          ) : exchanges.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <ArrowRightLeft className="h-12 w-12 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">No exchanges available yet</h3>
+              <p className="text-muted-foreground mb-4">Be the first to post a skill exchange!</p>
+              <Button onClick={() => setCreateDialogOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create First Exchange
+              </Button>
+            </div>
+          ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {exchangeOffers.map((offer, index) => (
-              <Card key={index} className="group hover:shadow-medium transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+            {exchanges.map((offer) => (
+              <Card key={offer.id} className="group hover:shadow-medium transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
                 <CardHeader className="pb-4">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <Badge 
-                          variant={offer.type === "Premium Exchange" ? "secondary" : offer.type === "Quick Exchange" ? "default" : "outline"} 
+                          variant={offer.exchange_type === "Premium Exchange" ? "secondary" : offer.exchange_type === "Quick Exchange" ? "default" : "outline"} 
                           className="text-xs"
                         >
-                          {offer.type}
+                          {offer.exchange_type}
                         </Badge>
-                        {offer.verified && (
-                          <Badge variant="outline" className="text-xs">
-                            <CheckCircle className="w-3 h-3 mr-1 text-success" />
-                            Verified
-                          </Badge>
-                        )}
+                        <Badge variant="outline" className="text-xs">
+                          {offer.experience_level || "Intermediate"}
+                        </Badge>
                       </div>
                       <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                        {offer.offering} ↔ {offer.wanting}
+                        {offer.offering_skill} ↔ {offer.wanting_skill}
                       </CardTitle>
-                      <p className="text-sm text-muted-foreground">by {offer.offerer}</p>
+                      <p className="text-sm text-muted-foreground">by {offer.offerer_name}</p>
                     </div>
                     <div className="text-right">
                       <div className="flex items-center gap-1 text-primary font-semibold">
@@ -242,21 +294,25 @@ const SkillExchange = () => {
                       <span>{offer.timeframe}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-primary text-primary" />
-                      <span>{offer.rating}</span>
+                      <TrendingUp className="w-4 h-4" />
+                      <span>{offer.category.split(' ↔ ')[0]}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Handshake className="w-4 h-4" />
-                      <span>{offer.completedExchanges} exchanges</span>
+                      <span>{offer.location_preference || "Remote"}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <TrendingUp className="w-4 h-4" />
-                      <span>{offer.category.split(' ↔ ')[0]}</span>
+                      <CheckCircle className="w-4 h-4 text-success" />
+                      <span>{offer.status}</span>
                     </div>
                   </div>
                   
                   <div className="flex gap-3">
-                    <Button variant="hero" className="flex-1">
+                    <Button 
+                      variant="hero" 
+                      className="flex-1"
+                      onClick={() => handleProposeExchange(offer)}
+                    >
                       <ArrowRightLeft className="w-4 h-4" />
                       Propose Exchange
                     </Button>
@@ -269,12 +325,7 @@ const SkillExchange = () => {
               </Card>
             ))}
           </div>
-
-          <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
-              Load More Exchanges
-            </Button>
-          </div>
+          )}
         </div>
       </section>
 
@@ -369,6 +420,17 @@ const SkillExchange = () => {
         </div>
       </section>
       </div>
+
+      <CreateSkillExchangeDialog 
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+      />
+
+      <ProposeExchangeDialog
+        exchange={selectedExchange}
+        open={proposeDialogOpen}
+        onOpenChange={setProposeDialogOpen}
+      />
     </PageLayout>
   );
 };
