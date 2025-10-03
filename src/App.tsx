@@ -58,9 +58,12 @@ const App = () => (
             <Route path="/edutask" element={<EduTask />} />
             <Route path="/projecthub" element={<ProjectHub />} />
             <Route path="/bubble-gigs" element={<BubbleGigs />} />
+            <Route path="/bubblegigs" element={<BubbleGigs />} />
             <Route path="/create-gig" element={<CreateGig />} />
             <Route path="/skill-exchange" element={<SkillExchange />} />
+            <Route path="/skillexchange" element={<SkillExchange />} />
             <Route path="/ask-teach" element={<AskTeach />} />
+            <Route path="/askteach" element={<AskTeach />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
