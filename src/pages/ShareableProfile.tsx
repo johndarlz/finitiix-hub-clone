@@ -67,7 +67,7 @@ const ShareableProfile = () => {
         .from("profiles")
         .select("*")
         .eq("username", username)
-        .single();
+        .maybeSingle();
 
       if (profileError || !userProfileData) {
         console.error("Error fetching user profile:", profileError);
@@ -82,7 +82,7 @@ const ShareableProfile = () => {
         .from("myprofile")
         .select("*")
         .eq("user_id", userProfileData.user_id)
-        .single();
+        .maybeSingle();
 
       if (detailError && detailError.code !== 'PGRST116') {
         console.error("Error fetching detailed profile:", detailError);

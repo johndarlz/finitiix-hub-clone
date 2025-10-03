@@ -38,10 +38,21 @@ const UserProfile = () => {
         .from('profiles')
         .select('name, username, avatar_url')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching profile:', error);
+        return;
+      }
+
+      if (!data) {
+        // No profile found, create a default one
+        const defaultProfile = {
+          name: user?.email?.split('@')[0] || 'User',
+          username: user?.email?.split('@')[0] || 'user',
+          avatar_url: null
+        };
+        setProfile(defaultProfile);
         return;
       }
 
