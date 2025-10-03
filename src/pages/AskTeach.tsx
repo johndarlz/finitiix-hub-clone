@@ -1,128 +1,150 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircleQuestion, GraduationCap, DollarSign, Clock, Star, Users, TrendingUp, BookOpen } from "lucide-react";
+import { MessageCircleQuestion, GraduationCap, DollarSign, Clock, Star, Users, TrendingUp, BookOpen, Plus, Loader2 } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { PostQuestionDialog } from "@/components/PostQuestionDialog";
+import { BecomeMentorDialog } from "@/components/BecomeMentorDialog";
+import { AnswerQuestionDialog } from "@/components/AnswerQuestionDialog";
 
 const AskTeach = () => {
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [mentors, setMentors] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [postQuestionOpen, setPostQuestionOpen] = useState(false);
+  const [becomeMentorOpen, setBecomeMentorOpen] = useState(false);
+  const [answerDialogOpen, setAnswerDialogOpen] = useState(false);
+  const [selectedQuestion, setSelectedQuestion] = useState<any>(null);
+
   const categories = [
     "Programming", "Design", "Marketing", "Business", "Mathematics", 
     "Languages", "Science", "Finance", "Writing", "Music"
   ];
 
-  const activeQuestions = [
-    {
-      question: "How to implement JWT authentication in Node.js?",
-      asker: "Priya Sharma",
-      category: "Programming",
-      bounty: "₹150",
-      timePosted: "2 hours ago",
-      responses: 3,
-      urgency: "High",
-      difficulty: "Intermediate",
-      tags: ["Node.js", "JWT", "Authentication"],
-      status: "Open"
-    },
-    {
-      question: "Best practices for UI/UX design in mobile apps?",
-      asker: "Rahul Verma",
-      category: "Design",
-      bounty: "₹200",
-      timePosted: "4 hours ago",
-      responses: 7,
-      urgency: "Medium",
-      difficulty: "Beginner",
-      tags: ["UI/UX", "Mobile Design", "Best Practices"],
-      status: "Open"
-    },
-    {
-      question: "How to calculate compound interest for investments?",
-      asker: "Sneha Patel",
-      category: "Finance",
-      bounty: "₹80",
-      timePosted: "1 hour ago",
-      responses: 2,
-      urgency: "Low",
-      difficulty: "Beginner",
-      tags: ["Finance", "Investment", "Mathematics"],
-      status: "Open"
-    },
-    {
-      question: "Digital marketing strategy for startup launch?",
-      asker: "Arjun Kumar",
-      category: "Marketing",
-      bounty: "₹300",
-      timePosted: "6 hours ago",
-      responses: 12,
-      urgency: "High",
-      difficulty: "Advanced",
-      tags: ["Digital Marketing", "Startup", "Strategy"],
-      status: "Answered"
-    },
-    {
-      question: "Python data visualization with matplotlib tips?",
-      asker: "Meera Singh",
-      category: "Programming",
-      bounty: "₹120",
-      timePosted: "3 hours ago",
-      responses: 5,
-      urgency: "Medium",
-      difficulty: "Intermediate",
-      tags: ["Python", "Data Visualization", "Matplotlib"],
-      status: "Open"
-    },
-    {
-      question: "How to write compelling copy for landing pages?",
-      asker: "Kiran Gupta",
-      category: "Writing",
-      bounty: "₹180",
-      timePosted: "5 hours ago",
-      responses: 8,
-      urgency: "Medium",
-      difficulty: "Intermediate",
-      tags: ["Copywriting", "Landing Pages", "Conversion"],
-      status: "Open"
-    }
-  ];
+  useEffect(() => {
+    fetchQuestions();
+    fetchMentors();
+    setupRealtimeSubscriptions();
+  }, []);
 
-  const mentorProfiles = [
-    {
-      name: "Dr. Rajesh Kumar",
-      expertise: "Data Science & Machine Learning",
-      rating: 4.9,
-      students: 245,
-      hourlyRate: "₹500",
-      totalEarnings: "₹45,000",
-      yearsExperience: 8,
-      responseTime: "< 2 hours",
-      successRate: "98%",
-      image: "👨‍💻"
-    },
-    {
-      name: "Priya Sharma",
-      expertise: "UI/UX Design & Product",
-      rating: 4.8,
-      students: 189,
-      hourlyRate: "₹400",
-      totalEarnings: "₹32,000",
-      yearsExperience: 5,
-      responseTime: "< 1 hour",
-      successRate: "96%",
-      image: "👩‍🎨"
-    },
-    {
-      name: "Amit Verma",
-      expertise: "Full Stack Development",
-      rating: 4.9,
-      students: 312,
-      hourlyRate: "₹600",
-      totalEarnings: "₹58,000",
-      yearsExperience: 7,
-      responseTime: "< 3 hours",
-      successRate: "97%",
-      image: "👨‍💼"
+  const fetchQuestions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("questions")
+        .select("*")
+        .in("status", ["open", "answered"])
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+      setQuestions(data || []);
+    } catch (error: any) {
+      console.error("Error fetching questions:", error);
+      toast({
+        title: "Error loading questions",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const fetchMentors = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("mentors")
+        .select("*")
+        .order("avg_rating", { ascending: false })
+        .limit(6);
+
+      if (error) throw error;
+      setMentors(data || []);
+    } catch (error: any) {
+      console.error("Error fetching mentors:", error);
+    }
+  };
+
+  const setupRealtimeSubscriptions = () => {
+    const questionsChannel = supabase
+      .channel("questions-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "questions",
+        },
+        (payload) => {
+          console.log("New question:", payload);
+          if (["open", "answered"].includes(payload.new.status)) {
+            setQuestions((prev) => [payload.new, ...prev]);
+            toast({
+              title: "New question posted!",
+              description: payload.new.question_title,
+            });
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "questions",
+        },
+        (payload) => {
+          setQuestions((prev) =>
+            prev.map((q) => (q.id === payload.new.id ? payload.new : q))
+          );
+        }
+      )
+      .subscribe();
+
+    const mentorsChannel = supabase
+      .channel("mentors-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "mentors",
+        },
+        (payload) => {
+          setMentors((prev) => [...prev, payload.new]);
+          toast({
+            title: "New mentor joined!",
+            description: `${payload.new.name} is now available`,
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(questionsChannel);
+      supabase.removeChannel(mentorsChannel);
+    };
+  };
+
+  const handleAnswerQuestion = (question: any) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to answer questions",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSelectedQuestion(question);
+    setAnswerDialogOpen(true);
+  };
+
 
   const quickStats = [
     { icon: <MessageCircleQuestion className="w-5 h-5" />, value: "15K+", label: "Questions Solved" },
@@ -172,11 +194,21 @@ const AskTeach = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button variant="hero" size="lg" className="text-lg px-8 py-6">
-                <MessageCircleQuestion className="w-5 h-5" />
+              <Button 
+                variant="hero" 
+                size="lg" 
+                className="text-lg px-8 py-6"
+                onClick={() => setPostQuestionOpen(true)}
+              >
+                <Plus className="w-5 h-5" />
                 Ask Question
               </Button>
-              <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="text-lg px-8 py-6"
+                onClick={() => setBecomeMentorOpen(true)}
+              >
                 <GraduationCap className="w-5 h-5" />
                 Become Mentor
               </Button>
@@ -221,11 +253,34 @@ const AskTeach = () => {
       {/* Active Questions */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Recent Questions</h2>
+          <div className="flex items-center justify-between mb-12">
+            <h2 className="text-3xl font-bold">Recent Questions</h2>
+            <Badge variant="outline" className="text-lg px-4 py-2">
+              {questions.length} Open Questions
+            </Badge>
+          </div>
           
+          {loading ? (
+            <div className="text-center py-12">
+              <Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" />
+              <p className="mt-4 text-muted-foreground">Loading questions...</p>
+            </div>
+          ) : questions.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <MessageCircleQuestion className="h-12 w-12 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">No questions yet</h3>
+              <p className="text-muted-foreground mb-4">Be the first to ask a question!</p>
+              <Button onClick={() => setPostQuestionOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Post First Question
+              </Button>
+            </div>
+          ) : (
           <div className="grid md:grid-cols-2 gap-8">
-            {activeQuestions.map((item, index) => (
-              <Card key={index} className="hover:shadow-medium transition-all duration-300 transform hover:-translate-y-1">
+            {questions.map((item) => (
+              <Card key={item.id} className="hover:shadow-medium transition-all duration-300 transform hover:-translate-y-1">
                 <CardHeader>
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
@@ -240,17 +295,17 @@ const AskTeach = () => {
                           {item.urgency}
                         </Badge>
                         <Badge 
-                          variant={item.status === "Open" ? "outline" : "secondary"}
+                          variant={item.status === "open" ? "outline" : "secondary"}
                           className="text-xs"
                         >
                           {item.status}
                         </Badge>
                       </div>
-                      <CardTitle className="text-lg line-clamp-2">{item.question}</CardTitle>
-                      <p className="text-sm text-muted-foreground">by {item.asker}</p>
+                      <CardTitle className="text-lg line-clamp-2">{item.question_title}</CardTitle>
+                      <p className="text-sm text-muted-foreground">by {item.asker_name}</p>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-success">{item.bounty}</div>
+                      <div className="text-2xl font-bold text-success">₹{item.bounty}</div>
                       <div className="text-xs text-muted-foreground">Bounty</div>
                     </div>
                   </div>
@@ -258,7 +313,7 @@ const AskTeach = () => {
                 
                 <CardContent className="space-y-4">
                   <div className="flex flex-wrap gap-2">
-                    {item.tags.map((tag, tagIndex) => (
+                    {item.tags?.map((tag: string, tagIndex: number) => (
                       <Badge key={tagIndex} variant="outline" className="text-xs">
                         {tag}
                       </Badge>
@@ -268,24 +323,20 @@ const AskTeach = () => {
                   <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
-                      <span>{item.timePosted}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MessageCircleQuestion className="w-4 h-4" />
-                      <span>{item.responses} responses</span>
+                      <span>{new Date(item.created_at).toLocaleDateString()}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <TrendingUp className="w-4 h-4" />
                       <span>{item.difficulty}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <BookOpen className="w-4 h-4" />
-                      <span>Study Help</span>
-                    </div>
                   </div>
                   
                   <div className="flex gap-3">
-                    <Button variant="hero" className="flex-1">
+                    <Button 
+                      variant="hero" 
+                      className="flex-1"
+                      onClick={() => handleAnswerQuestion(item)}
+                    >
                       Answer Question
                     </Button>
                     <Button variant="outline">
@@ -296,12 +347,7 @@ const AskTeach = () => {
               </Card>
             ))}
           </div>
-
-          <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
-              View All Questions
-            </Button>
-          </div>
+          )}
         </div>
       </section>
 
@@ -311,43 +357,47 @@ const AskTeach = () => {
           <h2 className="text-3xl font-bold text-center mb-12">Top Mentors</h2>
           
           <div className="grid md:grid-cols-3 gap-8">
-            {mentorProfiles.map((mentor, index) => (
-              <Card key={index} className="text-center hover:shadow-medium transition-all duration-300 transform hover:-translate-y-1">
+            {mentors.map((mentor) => {
+              const initials = mentor.name.split(' ').map((n: string) => n[0]).join('');
+              return (
+              <Card key={mentor.id} className="text-center hover:shadow-medium transition-all duration-300 transform hover:-translate-y-1">
                 <CardHeader>
-                  <div className="text-6xl mb-4">{mentor.image}</div>
+                  <div className="w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center text-3xl font-bold text-white mx-auto mb-4">
+                    {initials}
+                  </div>
                   <CardTitle className="text-xl">{mentor.name}</CardTitle>
                   <CardDescription className="text-primary font-medium">
                     {mentor.expertise}
                   </CardDescription>
                   <div className="flex items-center justify-center gap-1 mt-2">
                     <Star className="w-4 h-4 fill-primary text-primary" />
-                    <span className="font-medium">{mentor.rating}</span>
-                    <span className="text-muted-foreground">({mentor.students} students)</span>
+                    <span className="font-medium">{mentor.avg_rating || 5.0}</span>
+                    <span className="text-muted-foreground">({mentor.total_students} students)</span>
                   </div>
                 </CardHeader>
                 
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div className="text-center">
-                      <div className="font-bold text-success">{mentor.hourlyRate}</div>
+                      <div className="font-bold text-success">₹{mentor.hourly_rate}</div>
                       <div className="text-muted-foreground">Per Hour</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-bold text-primary">{mentor.totalEarnings}</div>
+                      <div className="font-bold text-primary">₹{mentor.total_earnings}</div>
                       <div className="text-muted-foreground">Total Earned</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-bold">{mentor.responseTime}</div>
+                      <div className="font-bold">{mentor.response_time || "< 2 hrs"}</div>
                       <div className="text-muted-foreground">Response</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-bold">{mentor.successRate}</div>
-                      <div className="text-muted-foreground">Success Rate</div>
+                      <div className="font-bold">{mentor.years_experience} yrs</div>
+                      <div className="text-muted-foreground">Experience</div>
                     </div>
                   </div>
                   
                   <div className="flex gap-3">
-                    <Button variant="hero" className="flex-1">
+                    <Button variant="hero" className="flex-1" onClick={() => setPostQuestionOpen(true)}>
                       Ask Question
                     </Button>
                     <Button variant="outline">
@@ -356,7 +406,7 @@ const AskTeach = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )})}
           </div>
         </div>
       </section>
@@ -413,6 +463,22 @@ const AskTeach = () => {
         </div>
       </section>
       </div>
+
+      <PostQuestionDialog 
+        open={postQuestionOpen}
+        onOpenChange={setPostQuestionOpen}
+      />
+
+      <BecomeMentorDialog
+        open={becomeMentorOpen}
+        onOpenChange={setBecomeMentorOpen}
+      />
+
+      <AnswerQuestionDialog
+        question={selectedQuestion}
+        open={answerDialogOpen}
+        onOpenChange={setAnswerDialogOpen}
+      />
     </PageLayout>
   );
 };

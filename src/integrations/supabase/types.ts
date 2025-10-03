@@ -38,6 +38,47 @@ export type Database = {
         }
         Relationships: []
       }
+      answers: {
+        Row: {
+          answer_content: string
+          created_at: string
+          id: string
+          is_accepted: boolean | null
+          mentor_name: string
+          mentor_user_id: string
+          question_id: string
+          updated_at: string
+        }
+        Insert: {
+          answer_content: string
+          created_at?: string
+          id?: string
+          is_accepted?: boolean | null
+          mentor_name: string
+          mentor_user_id: string
+          question_id: string
+          updated_at?: string
+        }
+        Update: {
+          answer_content?: string
+          created_at?: string
+          id?: string
+          is_accepted?: boolean | null
+          mentor_name?: string
+          mentor_user_id?: string
+          question_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       feedback: {
         Row: {
           consent_contact: boolean | null
@@ -375,6 +416,66 @@ export type Database = {
         }
         Relationships: []
       }
+      mentors: {
+        Row: {
+          avg_rating: number | null
+          bio: string
+          created_at: string
+          email: string
+          expertise: string
+          hourly_rate: number
+          id: string
+          is_verified: boolean | null
+          languages: string[] | null
+          name: string
+          response_time: string | null
+          skills: string[] | null
+          total_earnings: number | null
+          total_students: number | null
+          updated_at: string
+          user_id: string
+          years_experience: number
+        }
+        Insert: {
+          avg_rating?: number | null
+          bio: string
+          created_at?: string
+          email: string
+          expertise: string
+          hourly_rate: number
+          id?: string
+          is_verified?: boolean | null
+          languages?: string[] | null
+          name: string
+          response_time?: string | null
+          skills?: string[] | null
+          total_earnings?: number | null
+          total_students?: number | null
+          updated_at?: string
+          user_id: string
+          years_experience: number
+        }
+        Update: {
+          avg_rating?: number | null
+          bio?: string
+          created_at?: string
+          email?: string
+          expertise?: string
+          hourly_rate?: number
+          id?: string
+          is_verified?: boolean | null
+          languages?: string[] | null
+          name?: string
+          response_time?: string | null
+          skills?: string[] | null
+          total_earnings?: number | null
+          total_students?: number | null
+          updated_at?: string
+          user_id?: string
+          years_experience?: number
+        }
+        Relationships: []
+      }
       myprofile: {
         Row: {
           achievements: Json | null
@@ -606,6 +707,57 @@ export type Database = {
           updated_at?: string
           user_id?: string
           video_demo_url?: string | null
+        }
+        Relationships: []
+      }
+      questions: {
+        Row: {
+          asker_email: string
+          asker_name: string
+          bounty: number
+          category: string
+          created_at: string
+          difficulty: string
+          id: string
+          question_details: string
+          question_title: string
+          status: string | null
+          tags: string[] | null
+          updated_at: string
+          urgency: string
+          user_id: string
+        }
+        Insert: {
+          asker_email: string
+          asker_name: string
+          bounty?: number
+          category: string
+          created_at?: string
+          difficulty: string
+          id?: string
+          question_details: string
+          question_title: string
+          status?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          urgency: string
+          user_id: string
+        }
+        Update: {
+          asker_email?: string
+          asker_name?: string
+          bounty?: number
+          category?: string
+          created_at?: string
+          difficulty?: string
+          id?: string
+          question_details?: string
+          question_title?: string
+          status?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          urgency?: string
+          user_id?: string
         }
         Relationships: []
       }
