@@ -499,6 +499,7 @@ export type Database = {
           resume_url: string | null
           skills: string[] | null
           social_links: Json | null
+          tagline: string | null
           testimonials: Json | null
           updated_at: string
           user_id: string
@@ -527,6 +528,7 @@ export type Database = {
           resume_url?: string | null
           skills?: string[] | null
           social_links?: Json | null
+          tagline?: string | null
           testimonials?: Json | null
           updated_at?: string
           user_id: string
@@ -555,6 +557,7 @@ export type Database = {
           resume_url?: string | null
           skills?: string[] | null
           social_links?: Json | null
+          tagline?: string | null
           testimonials?: Json | null
           updated_at?: string
           user_id?: string

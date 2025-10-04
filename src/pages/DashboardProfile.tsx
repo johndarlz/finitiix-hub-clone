@@ -59,6 +59,7 @@ const DashboardProfile = () => {
     location: "",
     
     // Professional Information
+    tagline: "",
     headline: "",
     bio: "",
     skills: [],
@@ -121,6 +122,7 @@ const DashboardProfile = () => {
           contact_email: data.contact_email || user?.email || "",
           phone_number: data.phone_number || "",
           location: data.location || "",
+          tagline: data.tagline || "",
           headline: data.headline || "",
           bio: data.bio || "",
           skills: Array.isArray(data.skills) ? data.skills : [],
@@ -425,6 +427,11 @@ const DashboardProfile = () => {
                       <div>
                         <h2 className="text-2xl font-bold">{formData.full_name || "Add your name"}</h2>
                         <p className="text-primary">@{user?.email?.split('@')[0]}</p>
+                        {formData.tagline && (
+                          <p className="text-lg font-medium text-primary mt-1 animate-fade-in">
+                            {formData.tagline}
+                          </p>
+                        )}
                         <p className="text-muted-foreground mt-2">{formData.headline || "Add a professional headline"}</p>
                         <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
                           {formData.location && (
@@ -489,7 +496,16 @@ const DashboardProfile = () => {
               {editMode ? (
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="headline">Headline / Tagline</Label>
+                    <Label htmlFor="tagline">Tagline (Short & Catchy)</Label>
+                    <Input
+                      id="tagline"
+                      value={formData.tagline}
+                      onChange={(e) => setFormData({...formData, tagline: e.target.value})}
+                      placeholder="e.g., Turning ideas into reality"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="headline">Professional Headline</Label>
                     <Input
                       id="headline"
                       value={formData.headline}

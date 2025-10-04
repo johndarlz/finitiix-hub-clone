@@ -232,11 +232,16 @@ const ShareableProfile = () => {
               </div>
             </div>
 
-            <h1 className="text-5xl font-bold mb-2">
+            <h1 className="text-5xl font-bold mb-2 animate-fade-in">
               {profile?.full_name || userProfile?.name || "Anonymous User"}
             </h1>
             <p className="text-xl mb-2">@{username}</p>
-            <p className="text-2xl text-white/90 font-medium mb-6">
+            {profile?.tagline && (
+              <p className="text-3xl text-white font-bold mb-2 animate-scale-in">
+                {profile.tagline}
+              </p>
+            )}
+            <p className="text-2xl text-white/90 font-medium mb-6 animate-fade-in">
               {profile?.headline || "Professional looking for opportunities"}
             </p>
 

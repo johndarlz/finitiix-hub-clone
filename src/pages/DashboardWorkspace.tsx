@@ -17,7 +17,12 @@ import {
   MapPin,
   Users,
   Search,
-  Filter
+  Filter,
+  CheckCircle,
+  Gift,
+  MessageSquare,
+  BookOpen,
+  Coins
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useToast } from "@/hooks/use-toast";
@@ -31,6 +36,12 @@ const DashboardWorkspace = () => {
   const [appliedJobs, setAppliedJobs] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [uploadedProjects, setUploadedProjects] = useState<any[]>([]);
+  const [userGigs, setUserGigs] = useState<any[]>([]);
+  const [gigBookings, setGigBookings] = useState<any[]>([]);
+  const [userExchanges, setUserExchanges] = useState<any[]>([]);
+  const [exchangeProposals, setExchangeProposals] = useState<any[]>([]);
+  const [userQuestions, setUserQuestions] = useState<any[]>([]);
+  const [userAnswers, setUserAnswers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -91,10 +102,78 @@ const DashboardWorkspace = () => {
 
       if (projectsError) throw projectsError;
 
+      // Fetch user's gigs
+      const { data: gigsData, error: gigsError } = await supabase
+        .from('gigs')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (gigsError) throw gigsError;
+
+      // Fetch gig bookings for user's gigs
+      const gigIds = gigsData?.map(gig => gig.id) || [];
+      let bookingsData: any[] = [];
+      if (gigIds.length > 0) {
+        const { data, error: bookingsError } = await supabase
+          .from('gig_bookings')
+          .select('*, gigs(title)')
+          .in('gig_id', gigIds)
+          .order('created_at', { ascending: false });
+        if (bookingsError) throw bookingsError;
+        bookingsData = data || [];
+      }
+
+      // Fetch user's skill exchanges
+      const { data: exchangesData, error: exchangesError } = await supabase
+        .from('skill_exchanges')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (exchangesError) throw exchangesError;
+
+      // Fetch exchange proposals for user's exchanges
+      const exchangeIds = exchangesData?.map(ex => ex.id) || [];
+      let proposalsData: any[] = [];
+      if (exchangeIds.length > 0) {
+        const { data, error: proposalsError } = await supabase
+          .from('skill_exchange_proposals')
+          .select('*, skill_exchanges(offering_skill, wanting_skill)')
+          .in('exchange_id', exchangeIds)
+          .order('created_at', { ascending: false });
+        if (proposalsError) throw proposalsError;
+        proposalsData = data || [];
+      }
+
+      // Fetch user's questions
+      const { data: questionsData, error: questionsError } = await supabase
+        .from('questions')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (questionsError) throw questionsError;
+
+      // Fetch user's answers
+      const { data: answersData, error: answersError } = await supabase
+        .from('answers')
+        .select('*, questions(question_title)')
+        .eq('mentor_user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (answersError) throw answersError;
+
       setPostedJobs(postedJobsData || []);
       setAppliedJobs(appliedJobsData || []);
       setApplications(applicationsData);
       setUploadedProjects(projectsData || []);
+      setUserGigs(gigsData || []);
+      setGigBookings(bookingsData);
+      setUserExchanges(exchangesData || []);
+      setExchangeProposals(proposalsData);
+      setUserQuestions(questionsData || []);
+      setUserAnswers(answersData || []);
 
     } catch (error: any) {
       console.error('Error fetching workspace data:', error);
@@ -164,15 +243,15 @@ const DashboardWorkspace = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">My Workspace</h1>
-            <p className="text-muted-foreground">Manage your jobs and applications</p>
+            <p className="text-muted-foreground">Manage all your activities across FinitixHub</p>
           </div>
           <Link to="/post-job">
-            <Button>
+            <Button className="hover-scale">
               <Plus className="w-4 h-4 mr-2" />
               Post New Job
             </Button>
@@ -187,7 +266,7 @@ const DashboardWorkspace = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   type="text"
-                  placeholder="Search jobs..."
+                  placeholder="Search across all modules..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -207,9 +286,9 @@ const DashboardWorkspace = () => {
             <TabsTrigger value="posted">WorkZone ({postedJobs.length})</TabsTrigger>
             <TabsTrigger value="applied">Applications ({appliedJobs.length})</TabsTrigger>
             <TabsTrigger value="projects">ProjectHub ({uploadedProjects.length})</TabsTrigger>
-            <TabsTrigger value="edutask">EduTask (0)</TabsTrigger>
-            <TabsTrigger value="bubblegigs">BubbleGigs (0)</TabsTrigger>
-            <TabsTrigger value="skillexchange">SkillExchange (0)</TabsTrigger>
+            <TabsTrigger value="bubblegigs">BubbleGigs ({userGigs.length})</TabsTrigger>
+            <TabsTrigger value="skillexchange">SkillExchange ({userExchanges.length})</TabsTrigger>
+            <TabsTrigger value="edutask">Ask&Teach ({userQuestions.length})</TabsTrigger>
           </TabsList>
 
           {/* Posted Jobs */}
@@ -217,7 +296,7 @@ const DashboardWorkspace = () => {
             {postedJobs.length > 0 ? (
               <div className="grid gap-4">
                 {postedJobs.map((job) => (
-                  <Card key={job.id} className="hover:shadow-md transition-shadow">
+                  <Card key={job.id} className="hover:shadow-lg transition-all animate-fade-in hover-scale">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -311,7 +390,7 @@ const DashboardWorkspace = () => {
             {appliedJobs.length > 0 ? (
               <div className="grid gap-4">
                 {appliedJobs.map((application) => (
-                  <Card key={application.id} className="hover:shadow-md transition-shadow">
+                  <Card key={application.id} className="hover:shadow-lg transition-all animate-fade-in hover-scale">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -320,6 +399,11 @@ const DashboardWorkspace = () => {
                             <Badge className={getStatusColor(application.status)}>
                               {application.status}
                             </Badge>
+                            {application.status === 'accepted' && (
+                              <Badge className="bg-success text-white animate-pulse">
+                                🎉 Selected!
+                              </Badge>
+                            )}
                           </div>
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
@@ -335,9 +419,17 @@ const DashboardWorkspace = () => {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-foreground leading-relaxed line-clamp-2">
+                      <p className="text-foreground leading-relaxed line-clamp-2 mb-4">
                         {application.why_hire_me}
                       </p>
+                      {application.status === 'accepted' && (
+                        <div className="p-4 bg-success/10 border border-success rounded-lg animate-fade-in">
+                          <p className="text-success font-semibold flex items-center gap-2">
+                            <CheckCircle className="w-5 h-5" />
+                            Congratulations! You've been selected for this job. The job poster will contact you soon.
+                          </p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -364,7 +456,7 @@ const DashboardWorkspace = () => {
             {uploadedProjects.length > 0 ? (
               <div className="grid gap-4">
                 {uploadedProjects.map((project) => (
-                  <Card key={project.id} className="hover:shadow-md transition-shadow">
+                  <Card key={project.id} className="hover:shadow-lg transition-all animate-fade-in hover-scale">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -429,107 +521,316 @@ const DashboardWorkspace = () => {
             )}
           </TabsContent>
 
-          {/* EduTask */}
-          <TabsContent value="edutask" className="space-y-4">
-            <Card>
-              <CardContent className="text-center py-12">
-                <Badge className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="text-xl font-semibold mb-2">EduTask Module</h3>
-                <p className="text-muted-foreground mb-4">Coming soon - Educational tasks and courses</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           {/* BubbleGigs */}
           <TabsContent value="bubblegigs" className="space-y-4">
-            <Card>
-              <CardContent className="text-center py-12">
-                <Badge className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="text-xl font-semibold mb-2">BubbleGigs Module</h3>
-                <p className="text-muted-foreground mb-4">Coming soon - Video pitches and gigs</p>
-              </CardContent>
-            </Card>
+            {userGigs.length > 0 || gigBookings.length > 0 ? (
+              <div className="space-y-6">
+                {/* My Gigs */}
+                {userGigs.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Gift className="w-5 h-5" />
+                      My Gigs ({userGigs.length})
+                    </h3>
+                    <div className="grid gap-4">
+                      {userGigs.map((gig) => (
+                        <Card key={gig.id} className="hover:shadow-lg transition-all animate-fade-in hover-scale">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <CardTitle className="text-lg">{gig.title}</CardTitle>
+                                  <Badge className={getStatusColor(gig.status)}>
+                                    {gig.status}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                  <div className="flex items-center gap-1">
+                                    <DollarSign className="w-4 h-4" />
+                                    <span>₹{gig.price}</span>
+                                  </div>
+                                  <Badge variant="outline" className="text-xs">{gig.category}</Badge>
+                                  <div className="flex items-center gap-1">
+                                    <Users className="w-4 h-4" />
+                                    <span>{gigBookings.filter(b => b.gig_id === gig.id).length} bookings</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-foreground leading-relaxed line-clamp-2">
+                              {gig.description}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Received Bookings */}
+                {gigBookings.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Users className="w-5 h-5" />
+                      Bookings Received ({gigBookings.length})
+                    </h3>
+                    <div className="grid gap-4">
+                      {gigBookings.map((booking) => (
+                        <Card key={booking.id} className="hover:shadow-lg transition-all animate-fade-in hover-scale">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <CardTitle className="text-lg">{booking.gigs.title}</CardTitle>
+                                  <Badge className={getStatusColor(booking.status)}>
+                                    {booking.status}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                  <span>From: {booking.buyer_name}</span>
+                                  <div className="flex items-center gap-1">
+                                    <DollarSign className="w-4 h-4" />
+                                    <span>₹{booking.total_amount}</span>
+                                  </div>
+                                  <span>{new Date(booking.created_at).toLocaleDateString()}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-foreground leading-relaxed line-clamp-2">
+                              {booking.project_requirements}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <Gift className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                  <h3 className="text-xl font-semibold mb-2">No gigs posted yet</h3>
+                  <p className="text-muted-foreground mb-4">Create your first gig and start earning</p>
+                  <Link to="/bubble-gigs">
+                    <Button>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Gig
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* SkillExchange */}
           <TabsContent value="skillexchange" className="space-y-4">
-            <Card>
-              <CardContent className="text-center py-12">
-                <Badge className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="text-xl font-semibold mb-2">SkillExchange Module</h3>
-                <p className="text-muted-foreground mb-4">Coming soon - Skill exchange and collaboration</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
+            {userExchanges.length > 0 || exchangeProposals.length > 0 ? (
+              <div className="space-y-6">
+                {/* My Exchanges */}
+                {userExchanges.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Users className="w-5 h-5" />
+                      My Skill Exchanges ({userExchanges.length})
+                    </h3>
+                    <div className="grid gap-4">
+                      {userExchanges.map((exchange) => (
+                        <Card key={exchange.id} className="hover:shadow-lg transition-all animate-fade-in hover-scale">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <CardTitle className="text-lg">
+                                    {exchange.offering_skill} ↔️ {exchange.wanting_skill}
+                                  </CardTitle>
+                                  <Badge className={getStatusColor(exchange.status)}>
+                                    {exchange.status}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                  <Badge variant="outline" className="text-xs">{exchange.category}</Badge>
+                                  {exchange.coins > 0 && (
+                                    <Badge variant="secondary" className="flex items-center gap-1">
+                                      <Coins className="w-3 h-3" />
+                                      {exchange.coins} coins
+                                    </Badge>
+                                  )}
+                                  <div className="flex items-center gap-1">
+                                    <Users className="w-4 h-4" />
+                                    <span>{exchangeProposals.filter(p => p.exchange_id === exchange.id).length} proposals</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-foreground leading-relaxed line-clamp-2">
+                              {exchange.description}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-          {/* Applications Received */}
-          <TabsContent value="applications" className="space-y-4">
-            {applications.length > 0 ? (
-              <div className="grid gap-4">
-                {applications.map((application) => (
-                  <Card key={application.id} className="hover:shadow-md transition-shadow">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <CardTitle className="text-lg">{application.full_name}</CardTitle>
-                            <Badge className={getStatusColor(application.status)}>
-                              {application.status}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span>Applied for: {application.jobs?.title}</span>
-                            <div className="flex items-center gap-1">
-                              <DollarSign className="w-4 h-4" />
-                              <span>₹{application.expected_budget}</span>
+                {/* Received Proposals */}
+                {exchangeProposals.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <MessageSquare className="w-5 h-5" />
+                      Proposals Received ({exchangeProposals.length})
+                    </h3>
+                    <div className="grid gap-4">
+                      {exchangeProposals.map((proposal) => (
+                        <Card key={proposal.id} className="hover:shadow-lg transition-all animate-fade-in hover-scale">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <CardTitle className="text-lg">
+                                    {proposal.skill_exchanges.offering_skill} ↔️ {proposal.skill_exchanges.wanting_skill}
+                                  </CardTitle>
+                                  <Badge className={getStatusColor(proposal.status)}>
+                                    {proposal.status}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                  <span>From: {proposal.proposer_name}</span>
+                                  <span>{new Date(proposal.created_at).toLocaleDateString()}</span>
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              <span>{new Date(application.created_at).toLocaleDateString()}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            View Details
-                          </Button>
-                          <Button variant="hero" size="sm">
-                            Accept
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            Reject
-                          </Button>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div>
-                          <h4 className="font-medium mb-1">Why hire them:</h4>
-                          <p className="text-foreground leading-relaxed line-clamp-2">
-                            {application.why_hire_me}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-4 text-sm">
-                          <span><strong>Experience:</strong> {application.experience_level.replace('-', ' ')}</span>
-                          <span><strong>Availability:</strong> {application.availability}</span>
-                          <span><strong>Email:</strong> {application.email}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-foreground leading-relaxed line-clamp-2">
+                              {proposal.message}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <Card>
                 <CardContent className="text-center py-12">
                   <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <h3 className="text-xl font-semibold mb-2">No applications received</h3>
-                  <p className="text-muted-foreground mb-4">Post jobs to start receiving applications</p>
-                  <Link to="/post-job">
+                  <h3 className="text-xl font-semibold mb-2">No skill exchanges yet</h3>
+                  <p className="text-muted-foreground mb-4">Create your first skill exchange</p>
+                  <Link to="/skill-exchange">
                     <Button>
                       <Plus className="w-4 h-4 mr-2" />
-                      Post a Job
+                      Create Exchange
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Ask & Teach (Questions & Answers) */}
+          <TabsContent value="edutask" className="space-y-4">
+            {userQuestions.length > 0 || userAnswers.length > 0 ? (
+              <div className="space-y-6">
+                {/* My Questions */}
+                {userQuestions.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <MessageSquare className="w-5 h-5" />
+                      My Questions ({userQuestions.length})
+                    </h3>
+                    <div className="grid gap-4">
+                      {userQuestions.map((question) => (
+                        <Card key={question.id} className="hover:shadow-lg transition-all animate-fade-in hover-scale">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <CardTitle className="text-lg">{question.question_title}</CardTitle>
+                                  <Badge className={getStatusColor(question.status)}>
+                                    {question.status}
+                                  </Badge>
+                                  {question.bounty > 0 && (
+                                    <Badge variant="secondary" className="flex items-center gap-1">
+                                      <Coins className="w-3 h-3" />
+                                      ₹{question.bounty}
+                                    </Badge>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                  <Badge variant="outline" className="text-xs">{question.category}</Badge>
+                                  <span>Asked {new Date(question.created_at).toLocaleDateString()}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-foreground leading-relaxed line-clamp-2">
+                              {question.question_details}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* My Answers */}
+                {userAnswers.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <BookOpen className="w-5 h-5" />
+                      My Answers ({userAnswers.length})
+                    </h3>
+                    <div className="grid gap-4">
+                      {userAnswers.map((answer) => (
+                        <Card key={answer.id} className="hover:shadow-lg transition-all animate-fade-in hover-scale">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <CardTitle className="text-lg">{answer.questions.question_title}</CardTitle>
+                                  {answer.is_accepted && (
+                                    <Badge className="bg-success text-white flex items-center gap-1">
+                                      <CheckCircle className="w-3 h-3" />
+                                      Accepted
+                                    </Badge>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                  <span>Answered {new Date(answer.created_at).toLocaleDateString()}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-foreground leading-relaxed line-clamp-2">
+                              {answer.answer_content}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <BookOpen className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                  <h3 className="text-xl font-semibold mb-2">No questions or answers yet</h3>
+                  <p className="text-muted-foreground mb-4">Start asking questions or become a mentor</p>
+                  <Link to="/ask-teach">
+                    <Button>
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Visit Ask & Teach
                     </Button>
                   </Link>
                 </CardContent>
