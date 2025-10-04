@@ -28,6 +28,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const menuItems = [
+    { icon: Home, label: "Dashboard", path: "/dashboard" },
     { icon: User, label: "My Profile", path: "/dashboard/profile" },
     { icon: Briefcase, label: "My Workspace", path: "/dashboard/workspace" },
     { icon: Wallet, label: "Wallet", path: "/dashboard/wallet" },
